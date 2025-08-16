@@ -106,26 +106,29 @@
 
     // UI 구성 요소 렌더링
     const renderItem = (denom) => (
-      // Use flexbox for consistent horizontal alignment, fixing the width of elements
-      <div key={denom.value} className="flex items-center justify-between py-2 border-b border-gray-300">
-        <div className="flex-1 min-w-0 pr-2">
-          <span className="text-gray-700 text-lg sm:text-base font-medium whitespace-nowrap overflow-hidden text-ellipsis">{denom.name}</span>
+      // 세로 여백을 py-1로 줄여서 전체 높이 축소
+      <div key={denom.value} className="flex items-center justify-between py-1 border-b border-gray-300">
+        <div className="flex-1 min-w-0 pr-1">
+          {/* 글자 크기를 text-sm으로 줄여서 공간 확보 */}
+          <span className="text-gray-700 text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis">{denom.name}</span>
         </div>
         
-        <div className="flex items-center space-x-2 flex-shrink-0">
+        <div className="flex items-center space-x-1 flex-shrink-0">
           <input
             type="text"
             inputMode="numeric"
             placeholder="0"
             value={quantities[denom.value]}
             onChange={(e) => handleInputChange(e.target.value, denom)}
-            className="w-20 text-right text-gray-800 text-lg sm:text-base font-bold bg-gray-200 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+            // 입력 필드 높이 및 너비 조절
+            className="w-16 h-8 text-right text-gray-800 text-sm font-bold bg-gray-200 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
           />
-          <span className="text-gray-500 text-sm hidden sm:inline">개</span>
+          <span className="text-gray-500 text-xs">개</span>
         </div>
 
-        <div className="flex items-center justify-end w-[100px] sm:w-[120px] ml-4 flex-shrink-0">
-          <span className="font-semibold text-lg sm:text-base text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">
+        <div className="flex items-center justify-end w-[80px] ml-2 flex-shrink-0">
+          {/* 금액 글자 크기 조절 */}
+          <span className="font-semibold text-sm text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">
             {formatCurrency((parseInt(quantities[denom.value]) || 0) * denom.value)}
           </span>
         </div>
@@ -134,44 +137,49 @@
 
     return (
       <div className="min-h-screen bg-slate-900 font-sans flex flex-col items-center">
-        <div className="w-full max-w-md bg-slate-100 rounded-2xl shadow-xl p-6 sm:p-8 space-y-4 transform transition-all duration-300">
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-3xl sm:text-2xl font-extrabold text-gray-800 pb-2">
+        {/* 전체 컨테이너의 패딩을 줄여서 높이 축소 */}
+        <div className="w-full max-w-sm bg-slate-100 rounded-2xl shadow-xl p-4 space-y-2 transform transition-all duration-300">
+          <div className="flex justify-between items-center mb-2">
+            {/* 타이틀 글자 크기 축소 */}
+            <h1 className="text-xl font-extrabold text-gray-800 pb-1">
               회수금 계산기
             </h1>
+            {/* 버튼 크기 축소 */}
             <button
               onClick={handleReset}
-              className="px-4 py-2 bg-slate-700 text-white font-bold rounded-lg shadow-md hover:bg-slate-600 transition-colors duration-200"
+              className="px-3 py-1 bg-slate-700 text-white font-bold text-sm rounded-lg shadow-md hover:bg-slate-600 transition-colors duration-200"
             >
               초기화
             </button>
           </div>
 
           {/* 지폐 섹션 */}
-          <div className="bg-white rounded-xl p-4 shadow-md border border-gray-200">
-            <h2 className="text-xl sm:text-lg font-bold text-gray-800 mb-2">💵 지폐</h2>
+          <div className="bg-white rounded-xl p-2 shadow-md border border-gray-200">
+            <h2 className="text-base font-bold text-gray-800 mb-1">💵 지폐</h2>
             {denominations.filter(d => d.type === 'bill').map(renderItem)}
-            <div className="mt-4 pt-4 border-t-2 border-dashed border-gray-300 flex justify-between items-center font-bold text-lg sm:text-base text-gray-800">
+            {/* 점선 제거 */}
+            <div className="mt-2 pt-2 flex justify-between items-center font-bold text-sm text-gray-800">
               <span>지폐 소계:</span>
               <span>{formatCurrency(totals.billTotal)}</span>
             </div>
           </div>
 
           {/* 동전 섹션 */}
-          <div className="bg-white rounded-xl p-4 shadow-md border border-gray-200">
-            <h2 className="text-xl sm:text-lg font-bold text-gray-800 mb-2">🪙 동전</h2>
+          <div className="bg-white rounded-xl p-2 shadow-md border border-gray-200">
+            <h2 className="text-base font-bold text-gray-800 mb-1">🪙 동전</h2>
             {denominations.filter(d => d.type === 'coin').map(renderItem)}
-            <div className="mt-4 pt-4 border-t-2 border-dashed border-gray-300 flex justify-between items-center font-bold text-lg sm:text-base text-gray-800">
+            {/* 점선 제거 */}
+            <div className="mt-2 pt-2 flex justify-between items-center font-bold text-sm text-gray-800">
               <span>동전 소계:</span>
               <span>{formatCurrency(totals.coinTotal)}</span>
             </div>
           </div>
 
           {/* 총계 섹션 */}
-          <div className="bg-slate-800 rounded-xl p-4 shadow-lg text-white">
+          <div className="bg-slate-800 rounded-xl p-3 shadow-lg text-white">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl sm:text-xl font-bold">합계</h2>
-              <span className="text-3xl sm:text-2xl font-extrabold text-amber-300">
+              <h2 className="text-lg font-bold">합계</h2>
+              <span className="text-xl font-extrabold text-amber-300">
                 {formatCurrency(totals.grandTotal)}
               </span>
             </div>
