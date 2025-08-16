@@ -106,11 +106,13 @@
 
     // UI component for a single item (bill or coin).
     const renderItem = (denom) => (
+      // Use flexbox for consistent horizontal alignment, fixing the width of elements
       <div key={denom.value} className="flex items-center justify-between py-2 border-b border-gray-300">
-        <div className="flex items-center">
-          <span className="text-gray-700 text-lg sm:text-base font-medium">{denom.name}</span>
+        <div className="flex-1 min-w-0 pr-2">
+          <span className="text-gray-700 text-lg sm:text-base font-medium whitespace-nowrap overflow-hidden text-ellipsis">{denom.name}</span>
         </div>
-        <div className="flex items-center space-x-2">
+        
+        <div className="flex items-center space-x-2 flex-shrink-0">
           <input
             type="text"
             inputMode="numeric"
@@ -119,8 +121,11 @@
             onChange={(e) => handleInputChange(e.target.value, denom)}
             className="w-20 text-right text-gray-800 text-lg sm:text-base font-bold bg-gray-200 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
           />
-          <span className="text-gray-500 text-sm">개</span>
-          <span className="w-28 text-right font-semibold text-lg sm:text-base text-gray-900">
+          <span className="text-gray-500 text-sm hidden sm:inline">개</span>
+        </div>
+
+        <div className="flex items-center justify-end w-[100px] sm:w-[120px] ml-4 flex-shrink-0">
+          <span className="font-semibold text-lg sm:text-base text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">
             {formatCurrency((parseInt(quantities[denom.value]) || 0) * denom.value)}
           </span>
         </div>
@@ -128,8 +133,8 @@
     );
 
     return (
-      <div className="min-h-screen bg-slate-900 p-4 font-sans flex flex-col items-center">
-        <div className="w-full max-w-md bg-slate-100 rounded-2xl shadow-xl p-8 space-y-6 transform transition-all duration-300">
+      <div className="min-h-screen bg-slate-900 p-2 font-sans flex flex-col items-center">
+        <div className="w-full max-w-md bg-slate-100 rounded-2xl shadow-xl p-6 sm:p-8 space-y-6 transform transition-all duration-300">
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl sm:text-2xl font-extrabold text-gray-800 pb-2">
               회수금 계산기
