@@ -41,7 +41,7 @@
 <div id="root"></div>
 
 <script type="text/babel">
-  // Denominations for Korean currency.
+  // 화폐 단위를 정의합니다.
   const denominations = [
     { name: '오만원권', value: 50000, type: 'bill' },
     { name: '만원권', value: 10000, type: 'bill' },
@@ -53,22 +53,22 @@
     { name: '십원', value: 10, type: 'coin' },
   ];
 
-  // Function to format numbers to Korean currency format.
+  // 숫자를 한국 형식(콤마)으로 변환하는 함수
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(amount);
+    return new Intl.NumberFormat('ko-KR').format(amount);
   };
 
   function App() {
     const { useState, useMemo, useEffect } = React;
 
-    // State to store the quantity of each denomination.
+    // 각 화폐 단위의 수량을 저장하는 상태
     const [quantities, setQuantities] = useState(() =>
       denominations.reduce((acc, denom) => ({ ...acc, [denom.value]: '' }), {})
     );
 
-    // Handler for input field changes.
+    // 입력 필드 변경을 처리하는 함수
     const handleInputChange = (value, denom) => {
-      // Remove non-numeric characters.
+      // 숫자가 아닌 문자를 제거하고 빈 문자열을 0으로 변환
       const cleanValue = value.replace(/[^0-9]/g, '');
       setQuantities(prev => ({
         ...prev,
@@ -76,14 +76,14 @@
       }));
     };
     
-    // Handler to reset all input fields.
+    // 모든 입력 필드를 초기화하는 함수
     const handleReset = () => {
       setQuantities(
         denominations.reduce((acc, denom) => ({ ...acc, [denom.value]: '' }), {})
       );
     };
 
-    // Calculate totals using useMemo for optimization.
+    // 금액 계산 (최적화를 위해 useMemo 사용)
     const totals = useMemo(() => {
       let billTotal = 0;
       let coinTotal = 0;
@@ -104,7 +104,7 @@
       return { billTotal, coinTotal, grandTotal };
     }, [quantities]);
 
-    // UI component for a single item (bill or coin).
+    // UI 구성 요소 렌더링
     const renderItem = (denom) => (
       // Use flexbox for consistent horizontal alignment, fixing the width of elements
       <div key={denom.value} className="flex items-center justify-between py-2 border-b border-gray-300">
@@ -133,9 +133,9 @@
     );
 
     return (
-      <div className="min-h-screen bg-slate-900 p-2 font-sans flex flex-col items-center">
-        <div className="w-full max-w-md bg-slate-100 rounded-2xl shadow-xl p-6 sm:p-8 space-y-6 transform transition-all duration-300">
-          <div className="flex justify-between items-center mb-6">
+      <div className="min-h-screen bg-slate-900 font-sans flex flex-col items-center">
+        <div className="w-full max-w-md bg-slate-100 rounded-2xl shadow-xl p-6 sm:p-8 space-y-4 transform transition-all duration-300">
+          <div className="flex justify-between items-center mb-4">
             <h1 className="text-3xl sm:text-2xl font-extrabold text-gray-800 pb-2">
               회수금 계산기
             </h1>
@@ -147,7 +147,7 @@
             </button>
           </div>
 
-          {/* Bill Section */}
+          {/* 지폐 섹션 */}
           <div className="bg-white rounded-xl p-4 shadow-md border border-gray-200">
             <h2 className="text-xl sm:text-lg font-bold text-gray-800 mb-2">💵 지폐</h2>
             {denominations.filter(d => d.type === 'bill').map(renderItem)}
@@ -157,7 +157,7 @@
             </div>
           </div>
 
-          {/* Coin Section */}
+          {/* 동전 섹션 */}
           <div className="bg-white rounded-xl p-4 shadow-md border border-gray-200">
             <h2 className="text-xl sm:text-lg font-bold text-gray-800 mb-2">🪙 동전</h2>
             {denominations.filter(d => d.type === 'coin').map(renderItem)}
@@ -167,7 +167,7 @@
             </div>
           </div>
 
-          {/* Grand Total Section */}
+          {/* 총계 섹션 */}
           <div className="bg-slate-800 rounded-xl p-4 shadow-lg text-white">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl sm:text-xl font-bold">합계</h2>
