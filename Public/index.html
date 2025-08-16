@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회수금 계산기</title>
+
+  <!-- PWA 관련 메타 태그 -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="계산기">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://placehold.co/180x180/0f172a/fff?text=CC">
+  <meta name="theme-color" content="#0f172a">
+  
+  <!-- manifest.json 파일 링크 -->
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- React & ReactDOM CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Babel CDN for JSX support -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* Prevent number input spin buttons */
+    input[type='text'].no-spinner::-webkit-outer-spin-button,
+    input[type='text'].no-spinner::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type='text'].no-spinner {
+      -moz-appearance: textfield;
+    }
+  </style>
+</head>
+<body class="bg-slate-900">
+
+<div id="root"></div>
+
+<script type="text/babel">
+  // Denominations for Korean currency.
+  const denominations = [
+    { name: '오만원권', value: 50000, type: 'bill' },
+    { name: '만원권', value: 10000, type: 'bill' },
+    { name: '오천원권', value: 5000, type: 'bill' },
+    { name: '천원권', value: 1000, type: 'bill' },
+    { name: '오백원', value: 500, type: 'coin' },
+    { name: '백원', value: 100, type: 'coin' },
+    { name: '오십원', value: 50, type: 'coin' },
+    { name: '십원', value: 10, type: 'coin' },
+  ];
+
+  // Function to format numbers to Korean currency format.
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(amount);
+  };
+
+  function App() {
+    const { useState, useMemo, useEffect } = React;
+
+    // State to store the quantity of each denomination.
+    const [quantities, setQuantities] = useState(() =>
+      denominations.reduce((acc, denom) => ({ ...acc, [denom.value]: '' }), {})
+    );
+
+    // Handler for input field changes.
+    const handleInputChange = (value, denom) => {
+      // Remove non-numeric characters.
+      const cleanValue = value.replace(/[^0-9]/g, '');
+      setQuantities(prev => ({
+        ...prev,
+        [denom.value]: cleanValue
+      }));
+    };
+    
+    // Handler to reset all input fields.
+    const handleReset = () => {
+      setQuantities(
+        denominations.reduce((acc, denom) => ({ ...acc, [denom.value]: '' }), {})
+      );
+    };
+
+    // Calculate totals using useMemo for optimization.
+    const totals = useMemo(() => {
+      let billTotal = 0;
+      let coinTotal = 0;
+
+      denominations.forEach(denom => {
+        const quantity = parseInt(quantities[denom.value]) || 0;
+        const amount = quantity * denom.value;
+        
+        if (denom.type === 'bill') {
+          billTotal += amount;
+        } else {
+          coinTotal += amount;
+        }
+      });
+
+      const grandTotal = billTotal + coinTotal;
+      
+      return { billTotal, coinTotal, grandTotal };
+    }, [quantities]);
+
+    // UI component for a single item (bill or coin).
+    const renderItem = (denom) => (
+      <div key={denom.value} className="flex items-center justify-between py-2 border-b border-gray-300">
+        <div className="flex items-center">
+          <span className="text-gray-700 text-lg sm:text-base font-medium">{denom.name}</span>
+        </div>
+        <div className="flex items-center space-x-2">
+          <input
+            type="text"
+            inputMode="numeric"
+            placeholder="0"
+            value={quantities[denom.value]}
+            onChange={(e) => handleInputChange(e.target.value, denom)}
+            className="w-20 text-right text-gray-800 text-lg sm:text-base font-bold bg-gray-200 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+          />
+          <span className="text-gray-500 text-sm">개</span>
+          <span className="w-28 text-right font-semibold text-lg sm:text-base text-gray-900">
+            {formatCurrency((parseInt(quantities[denom.value]) || 0) * denom.value)}
+          </span>
+        </div>
+      </div>
+    );
+
+    return (
+      <div className="min-h-screen bg-slate-900 p-4 font-sans flex flex-col items-center">
+        <div className="w-full max-w-md bg-slate-100 rounded-2xl shadow-xl p-8 space-y-6 transform transition-all duration-300">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl sm:text-2xl font-extrabold text-gray-800 pb-2">
+              회수금 계산기
+            </h1>
+            <button
+              onClick={handleReset}
+              className="px-4 py-2 bg-slate-700 text-white font-bold rounded-lg shadow-md hover:bg-slate-600 transition-colors duration-200"
+            >
+              초기화
+            </button>
+          </div>
+
+          {/* Bill Section */}
+          <div className="bg-white rounded-xl p-4 shadow-md border border-gray-200">
+            <h2 className="text-xl sm:text-lg font-bold text-gray-800 mb-2">💵 지폐</h2>
+            {denominations.filter(d => d.type === 'bill').map(renderItem)}
+            <div className="mt-4 pt-4 border-t-2 border-dashed border-gray-300 flex justify-between items-center font-bold text-lg sm:text-base text-gray-800">
+              <span>지폐 소계:</span>
+              <span>{formatCurrency(totals.billTotal)}</span>
+            </div>
+          </div>
+
+          {/* Coin Section */}
+          <div className="bg-white rounded-xl p-4 shadow-md border border-gray-200">
+            <h2 className="text-xl sm:text-lg font-bold text-gray-800 mb-2">🪙 동전</h2>
+            {denominations.filter(d => d.type === 'coin').map(renderItem)}
+            <div className="mt-4 pt-4 border-t-2 border-dashed border-gray-300 flex justify-between items-center font-bold text-lg sm:text-base text-gray-800">
+              <span>동전 소계:</span>
+              <span>{formatCurrency(totals.coinTotal)}</span>
+            </div>
+          </div>
+
+          {/* Grand Total Section */}
+          <div className="bg-slate-800 rounded-xl p-4 shadow-lg text-white">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl sm:text-xl font-bold">합계</h2>
+              <span className="text-3xl sm:text-2xl font-extrabold text-amber-300">
+                {formatCurrency(totals.grandTotal)}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Render the App
+  const container = document.getElementById('root');
+  const root = ReactDOM.createRoot(container);
+  root.render(<App />);
+</script>
+
+<script>
+  // Service Worker Registration
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').then(registration => {
+        console.log('SW registered: ', registration);
+      }).catch(registrationError => {
+        console.log('SW registration failed: ', registrationError);
+      });
+    });
+  }
+</script>
+
+<!-- Inline manifest.json for a single file -->
+<script type="application/json" id="manifest">
+{
+  "name": "회수금 계산기",
+  "short_name": "계산기",
+  "description": "간단한 회수금 계산기",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "https://placehold.co/192x192/0f172a/fff?text=CC",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://placehold.co/512x512/0f172a/fff?text=CC",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+</script>
+
+<!-- Inline service worker for a single file -->
+<script id="sw-script">
+  self.addEventListener('install', (event) => {
+    event.waitUntil(
+      caches.open('currency-calculator-v1').then((cache) => {
+        return cache.addAll([
+          '/',
+          '/index.html',
+          'https://unpkg.com/react@18/umd/react.production.min.js',
+          'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js',
+          'https://unpkg.com/@babel/standalone/babel.min.js',
+          'https://cdn.tailwindcss.com',
+        ]);
+      })
+    );
+    self.skipWaiting();
+  });
+
+  self.addEventListener('fetch', (event) => {
+    event.respondWith(
+      caches.match(event.request).then((response) => {
+        return response || fetch(event.request);
+      })
+    );
+  });
+</script>
+<script>
+  // Dynamic SW file creation
+  const swCode = document.getElementById('sw-script').textContent;
+  const manifest = document.getElementById('manifest').textContent;
+  
+  const swBlob = new Blob([swCode], { type: 'application/javascript' });
+  const manifestBlob = new Blob([manifest], { type: 'application/json' });
+
+  const swUrl = URL.createObjectURL(swBlob);
+  const manifestUrl = URL.createObjectURL(manifestBlob);
+  
+  const originalRegister = navigator.serviceWorker.register;
+  const originalFetch = window.fetch;
+
+  // Polyfill service worker registration
+  navigator.serviceWorker.register = (path) => {
+    if (path === '/sw.js') {
+      return originalRegister.call(navigator.serviceWorker, swUrl);
+    }
+    return originalRegister.call(navigator.serviceWorker, path);
+  };
+  
+  // Polyfill manifest fetch
+  window.fetch = (input, init) => {
+    if (input instanceof Request && input.url.endsWith('/manifest.json')) {
+      return new Response(manifest, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+    } else if (typeof input === 'string' && input.endsWith('/manifest.json')) {
+      return new Response(manifest, {
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    return originalFetch.call(window, input, init);
+  };
+  
+</script>
+
+</body>
+</html>
