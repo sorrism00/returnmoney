@@ -10,7 +10,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="계산기">
   <!-- 업로드된 이미지 파일 URL로 변경 -->
-  <link rel="apple-touch-icon" sizes="180x180" href="http://googleusercontent.com/file_content/1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/Ios Calculator 3D Il.png">
   <meta name="theme-color" content="#0f172a">
   
   <!-- manifest.json 파일 링크 -->
@@ -121,7 +121,7 @@
             placeholder="0"
             value={quantities[denom.value]}
             onChange={(e) => handleInputChange(e.target.value, denom)}
-            // 입력 필드 높이 및 너비 조절, 텍스트를 오른쪽으로 정렬
+            // 입력 필드 높이 및 너비 조절, 텍스트는 오른쪽으로 정렬
             className="w-16 h-8 text-right text-gray-800 text-sm font-bold bg-gray-200 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
           />
           <span className="text-gray-500 text-xs">개</span>
@@ -130,7 +130,7 @@
         {/* 금액 부분은 자동으로 너비가 조절되도록 flex-1을 사용하고, 텍스트는 오른쪽 정렬합니다. */}
         <div className="flex-1 flex items-center justify-end ml-2">
           {/* 금액 글자 크기 조절 */}
-          <span className="font-semibold text-sm text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">
+          <span className="font-semibold text-sm text-gray-900 whitespace-now-wrap overflow-hidden text-ellipsis">
             {formatCurrency((parseInt(quantities[denom.value]) || 0) * denom.value)}
           </span>
         </div>
@@ -223,12 +223,12 @@
   "theme_color": "#0f172a",
   "icons": [
     {
-      "src": "http://googleusercontent.com/file_content/1",
+      "src": "/Ios Calculator 3D Il.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "http://googleusercontent.com/file_content/1",
+      "src": "/Ios Calculator 3D Il.png",
       "sizes": "512x512",
       "type": "image/png"
     }
