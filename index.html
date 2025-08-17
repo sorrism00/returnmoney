@@ -137,7 +137,8 @@
     );
 
     return (
-      <div className="min-h-screen bg-slate-900 font-sans flex flex-col items-center">
+      // 컨테이너가 화면 전체 높이를 차지하도록 min-h-screen을 사용하고, flex-col로 콘텐츠를 중앙에 배치합니다.
+      <div className="min-h-screen bg-slate-900 font-sans flex flex-col items-center justify-center">
         {/* 전체 컨테이너는 max-w-sm으로 제한하여 PC 화면에서 너무 커지지 않게 합니다. */}
         <div className="w-full max-w-sm bg-slate-100 rounded-2xl shadow-xl p-4 space-y-2 transform transition-all duration-300">
           <div className="flex justify-between items-center mb-2">
