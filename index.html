@@ -106,15 +106,14 @@
 
     // UI 구성 요소 렌더링
     const renderItem = (denom) => (
-      // 기존 justify-between 대신 일반 flex로 변경하고 간격을 직접 조정
-      <div key={denom.value} className="flex items-center py-1 border-b border-gray-300">
-        <div className="w-24 pr-1 flex-shrink-0">
+      // 화면 너비에 따라 자동으로 간격을 조정하는 justify-between을 사용합니다.
+      <div key={denom.value} className="flex items-center justify-between py-1 border-b border-gray-300">
+        <div className="flex-1 pr-1">
           {/* 글자 크기를 text-sm으로 줄여서 공간 확보 */}
           <span className="text-gray-700 text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis">{denom.name}</span>
         </div>
         
-        {/* 수량 입력 필드 컨테이너에 20px만큼의 왼쪽 마진(ml-5)을 추가 */}
-        <div className="flex items-center space-x-1 ml-5 flex-shrink-0">
+        <div className="flex items-center space-x-1 flex-shrink-0">
           <input
             type="text"
             inputMode="numeric"
@@ -127,8 +126,8 @@
           <span className="text-gray-500 text-xs">개</span>
         </div>
 
-        {/* 금액 부분은 남은 공간을 모두 차지하도록 flex-1을 사용하여 오른쪽으로 밀어냅니다 */}
-        <div className="flex-1 flex items-center justify-end ml-2 flex-shrink-0">
+        {/* 금액 부분은 자동으로 너비가 조절되도록 flex-1을 사용하고, 텍스트는 오른쪽 정렬합니다. */}
+        <div className="flex-1 flex items-center justify-end ml-2">
           {/* 금액 글자 크기 조절 */}
           <span className="font-semibold text-sm text-gray-900 whitespace-nowrap overflow-hidden text-ellipsis">
             {formatCurrency((parseInt(quantities[denom.value]) || 0) * denom.value)}
@@ -139,7 +138,7 @@
 
     return (
       <div className="min-h-screen bg-slate-900 font-sans flex flex-col items-center">
-        {/* 전체 컨테이너의 패딩을 줄여서 높이 축소 */}
+        {/* 전체 컨테이너는 max-w-sm으로 제한하여 PC 화면에서 너무 커지지 않게 합니다. */}
         <div className="w-full max-w-sm bg-slate-100 rounded-2xl shadow-xl p-4 space-y-2 transform transition-all duration-300">
           <div className="flex justify-between items-center mb-2">
             {/* 타이틀 글자 크기 축소 */}
