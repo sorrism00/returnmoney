@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -244,9 +244,10 @@
         return cache.addAll([
           '/',
           '/index.html',
+          'https://placehold.co/180x180/0f172a/fff?text=CC', // PWA 아이콘 추가 [1]
           'https://unpkg.com/react@18/umd/react.production.min.js',
-          'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js',
-          'https://unpkg.com/@babel/standalone/babel.min.js',
+          'https://unpkg.com/react-dom@18/umd/react.production.min.js',
+          'https://unpkg.com/@babel/standalone/babel.js', // .min.js 에서 .js 로 변경 [1]
           'https://cdn.tailwindcss.com',
         ]);
       })
