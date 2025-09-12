@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>회수금 계산기</title>
+
   <!-- PWA 관련 메타 태그 -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -11,15 +12,19 @@
   <!-- 업로드된 이미지 파일 URL로 변경 -->
   <link rel="apple-touch-icon" sizes="180x180" href="https://placehold.co/180x180/0f172a/fff?text=CC">
   <meta name="theme-color" content="#0f172a">
+  
   <!-- manifest.json 파일 링크 -->
   <link rel="manifest" href="/manifest.json">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+
   <!-- React & ReactDOM CDN -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <!-- Babel CDN for JSX support -->
   <script src="https://unpkg.com/@babel/standalone/babel.js"></script>
+
   <style>
     /* Prevent number input spin buttons */
     input[type='text'].no-spinner::-webkit-outer-spin-button,
@@ -33,7 +38,9 @@
   </style>
 </head>
 <body class="bg-slate-900">
+
 <div id="root"></div>
+
 <script type="text/babel">
   // 화폐 단위를 정의합니다.
   const denominations = [
@@ -190,6 +197,7 @@
   const root = ReactDOM.createRoot(container);
   root.render(<App />);
 </script>
+
 <script>
   // Service Worker Registration
   if ('serviceWorker' in navigator) {
@@ -202,6 +210,7 @@
     });
   }
 </script>
+
 <!-- Inline manifest.json for a single file -->
 <script type="application/json" id="manifest">
 {
@@ -226,6 +235,7 @@
   ]
 }
 </script>
+
 <!-- Inline service worker for a single file -->
 <script id="sw-script">
   self.addEventListener('install', (event) => {
@@ -289,5 +299,6 @@
   };
   
 </script>
+
 </body>
 </html>
