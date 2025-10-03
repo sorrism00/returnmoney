@@ -1,17 +1,16 @@
-// sw.js 파일 수정
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open('currency-calculator-v1').then((cache) => {
       return cache.addAll([
-        '/returnmoney/',
+        '/returnmoney/', // PWA 시작 URL
         '/returnmoney/index.html',
         '/returnmoney/manifest.json',
-        '/returnmoney/sw.js',
+        '/returnmoney/sw.js', // Service Worker 스크립트 자체도 캐시
         'https://unpkg.com/react@18/umd/react.production.min.js',
         'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js',
         'https://unpkg.com/@babel/standalone/babel.min.js',
-        // 'https://cdn.tailwindcss.com', // 이 줄을 제거하거나 주석 처리
-        'https://placehold.co/180x180/0f172a/fff?text=CC'
+        // 'https://cdn.tailwindcss.com', // CORS 문제 해결을 위해 제거
+        'https://placehold.co/180x180/0f172a/fff?text=CC' // PWA 아이콘도 캐시
       ]);
     })
   );
