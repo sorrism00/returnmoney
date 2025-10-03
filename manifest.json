@@ -2,7 +2,7 @@
   "name": "회수금 계산기",
   "short_name": "계산기",
   "description": "간단한 회수금 계산기",
-  "start_url": "/returnmoney/",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
