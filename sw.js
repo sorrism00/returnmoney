@@ -3,9 +3,9 @@ self.addEventListener('install', (event) => {
     caches.open('currency-calculator-v1').then((cache) => {
       // GitHub Pages 하위 디렉토리 경로에 맞게 모든 캐시 경로를 수정합니다.
       return cache.addAll([
-        '/returnmoney/',             // PWA의 시작 URL (index.html이 있는 경로)
-        '/returnmoney/index.html',
-        '/returnmoney/manifest.json',
+        '/',             // PWA의 시작 URL (index.html이 있는 경로)
+        '/index.html',
+        '/manifest.json',
         'https://unpkg.com/react@18/umd/react.production.min.js',
         'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js',
         'https://unpkg.com/@babel/standalone/babel.min.js',
