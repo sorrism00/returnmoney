@@ -7,17 +7,17 @@
 
   <!-- PWA 관련 메타 태그 -->
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes"> <!-- Deprecated 경고 해결 -->
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="계산기">
   <!-- 업로드된 이미지 파일 URL로 변경 -->
   <link rel="apple-touch-icon" sizes="180x180" href="https://placehold.co/180x180/0f172a/fff?text=CC">
   <meta name="theme-color" content="#0f172a">
 
-  <!-- Favicon 링크 추가 (favicon.ico 404 해결) -->
+  <!-- Favicon 링크 추가 -->
   <link rel="icon" type="image/png" href="https://placehold.co/180x180/0f172a/fff?text=CC">
 
-  <!-- manifest.json 파일 링크 (경로 수정) -->
+  <!-- manifest.json 파일 링크 -->
   <link rel="manifest" href="/returnmoney/manifest.json">
 
   <!-- Tailwind CSS CDN -->
@@ -66,49 +66,60 @@
   function App() {
     const { useState, useMemo } = React;
 
-    // 각 화폐 단위의 수량을 저장하는 상태
+    // 각 화폐 단위의 수량과 금액 입력값을 저장하는 상태
     const [quantities, setQuantities] = useState(() =>
-      denominations.reduce((acc, denom) => ({ ...acc, [denom.value]: '' }), {})
+      denominations.reduce((acc, denom) => ({
+        ...acc,
+        [denom.value]: { count: '', amountInput: '' } // count와 amountInput을 객체로 저장
+      }), {})
     );
 
     // 개수 입력 필드 변경을 처리하는 함수
     const handleQuantityChange = (value, denom) => {
       const cleanValue = value.replace(/[^0-9]/g, ''); // 숫자만 허용
+      const calculatedAmount = (parseInt(cleanValue) || 0) * denom.value;
+
       setQuantities(prev => ({
         ...prev,
-        [denom.value]: cleanValue
+        [denom.value]: {
+          count: cleanValue, // 개수 상태 업데이트
+          amountInput: String(calculatedAmount === 0 && cleanValue === '' ? '' : calculatedAmount) // 금액 입력값도 개수에 맞춰 업데이트 (초기화 시 빈 문자열 처리)
+        }
       }));
     };
 
     // 금액 입력 필드 변경을 처리하는 함수
     const handleAmountChange = (value, denom) => {
-      // 입력된 값에서 숫자 이외의 문자 (콤마 포함) 제거
-      const cleanValue = value.replace(/[^0-9]/g, '');
+      const cleanValue = value.replace(/[^0-9]/g, ''); // 숫자만 허용 (콤마 제거 포함)
       const amount = parseInt(cleanValue) || 0;
 
-      if (denom.value === 0) { // 0으로 나누는 경우 방지 (실제 화폐 단위에는 해당 없음)
-        setQuantities(prev => ({ ...prev, [denom.value]: '' }));
+      if (denom.value === 0) { // 0으로 나누는 경우 방지 (화폐 단위에 0은 없지만 방어코드)
+        setQuantities(prev => ({
+          ...prev,
+          [denom.value]: { count: '', amountInput: '' }
+        }));
         return;
       }
 
       // 입력된 금액에 해당하는 개수 계산 (소수점 버림)
       const calculatedQuantity = Math.floor(amount / denom.value);
 
-      // 입력 필드를 비웠을 때는 개수도 비우도록 처리
       setQuantities(prev => ({
         ...prev,
-        // 금액 입력 필드 자체에는 포맷된 값이 표시되므로,
-        // 개수 필드는 계산된 값으로 업데이트하고
-        // 여기서 직접 금액 필드의 value를 변경하지 않습니다.
-        // React의 단방향 데이터 흐름에 따라 `currentAmount`가 자동으로 업데이트됩니다.
-        [denom.value]: cleanValue === '' ? '' : String(calculatedQuantity)
+        [denom.value]: {
+          count: cleanValue === '' ? '' : String(calculatedQuantity), // 개수 상태 업데이트
+          amountInput: cleanValue // 금액 입력값은 사용자가 입력한 그대로 유지 (포맷되지 않은 숫자 문자열)
+        }
       }));
     };
 
     // 모든 입력 필드를 초기화하는 함수
     const handleReset = () => {
       setQuantities(
-        denominations.reduce((acc, denom) => ({ ...acc, [denom.value]: '' }), {})
+        denominations.reduce((acc, denom) => ({
+          ...acc,
+          [denom.value]: { count: '', amountInput: '' }
+        }), {})
       );
     };
 
@@ -118,7 +129,8 @@
       let coinTotal = 0;
 
       denominations.forEach(denom => {
-        const quantity = parseInt(quantities[denom.value]) || 0;
+        // 총계 계산 시에는 'count' 값을 사용합니다.
+        const quantity = parseInt(quantities[denom.value].count) || 0;
         const amount = quantity * denom.value;
 
         if (denom.type === 'bill') {
@@ -135,8 +147,7 @@
 
     // UI 구성 요소 렌더링
     const renderItem = (denom) => {
-      const currentQuantity = quantities[denom.value];
-      const currentAmount = (parseInt(currentQuantity) || 0) * denom.value;
+      const { count, amountInput } = quantities[denom.value]; // count와 amountInput을 분리하여 사용
 
       return (
         <div key={denom.value} className="flex items-center justify-between py-1 border-b border-gray-300">
@@ -150,7 +161,7 @@
               type="text"
               inputMode="numeric"
               placeholder="0"
-              value={currentQuantity}
+              value={count} // count 상태 사용
               onChange={(e) => handleQuantityChange(e.target.value, denom)}
               className="w-16 h-8 text-right text-gray-800 text-sm font-bold bg-gray-200 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
             />
@@ -163,7 +174,8 @@
               type="text"
               inputMode="numeric"
               placeholder="0"
-              value={formatCurrency(currentAmount)}
+              // amountInput을 포맷하여 표시. 빈 문자열일 경우 그대로 빈 문자열
+              value={amountInput === '' ? '' : formatCurrency(parseInt(amountInput) || 0)}
               onChange={(e) => handleAmountChange(e.target.value, denom)}
               className="w-28 h-8 text-right text-gray-800 text-sm font-bold bg-gray-200 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
             />
