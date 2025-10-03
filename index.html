@@ -157,8 +157,6 @@
 
     // 동전보충 전용 컴포넌트
     const CoinReplenishmentItem = ({ value, onChange }) => {
-      const [isFocused, setIsFocused] = useState(false); // Add focus state
-
       return (
         <div className="flex items-center justify-between py-1 border-b border-gray-300 last:border-b-0">
           <span className="text-gray-700 text-sm font-medium">동전보충</span>
@@ -168,10 +166,8 @@
               type="text"
               inputMode="numeric"
               placeholder="0"
-              // 포커스 상태에 따라 값 다르게 표시
-              value={isFocused ? value : (value === '' ? '' : formatCurrency(parseInt(value || '0')))}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
+              // 항상 포맷된 금액으로 표시
+              value={value === '' ? '' : formatCurrency(parseInt(value || '0'))}
               onChange={(e) => onChange(e.target.value.replace(/[^0-9]/g, ''))}
               className="w-32 h-8 text-right text-sm font-bold bg-gray-200 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 no-spinner text-red-500"
             />
@@ -183,7 +179,6 @@
 
     // 전표상이 전용 컴포넌트
     const SlipDiscrepancyItem = ({ value, type, onChange, onTypeChange }) => {
-      const [isFocused, setIsFocused] = useState(false); // Add focus state
       const textColor = type === 'minus' ? 'text-red-500' : (type === 'plus' ? 'text-blue-500' : 'text-gray-900');
       const prefix = type === 'minus' ? '-' : (type === 'plus' ? '+' : '');
 
@@ -213,10 +208,8 @@
               type="text"
               inputMode="numeric"
               placeholder="0"
-              // 포커스 상태에 따라 값 다르게 표시
-              value={isFocused ? value : (value === '' ? '' : formatCurrency(parseInt(value || '0')))}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
+              // 항상 포맷된 금액으로 표시
+              value={value === '' ? '' : formatCurrency(parseInt(value || '0'))}
               onChange={(e) => onChange(e.target.value.replace(/[^0-9]/g, ''))}
               className={`w-32 h-8 text-right text-sm font-bold bg-gray-200 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 no-spinner ${textColor}`}
             />
