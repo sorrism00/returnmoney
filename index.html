@@ -7,12 +7,15 @@
 
   <!-- PWA 관련 메타 태그 -->
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes"> <!-- 추가: Deprecated 경고 해결 -->
+  <meta name="mobile-web-app-capable" content="yes"> <!-- Deprecated 경고 해결 -->
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="계산기">
   <!-- 업로드된 이미지 파일 URL로 변경 -->
-  <link rel="icon" type="image/png" href="https://placehold.co/180x180/0f172a/fff?text=CC">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://placehold.co/180x180/0f172a/fff?text=CC">
   <meta name="theme-color" content="#0f172a">
+
+  <!-- Favicon 링크 추가 (favicon.ico 404 해결) -->
+  <link rel="icon" type="image/png" href="https://placehold.co/180x180/0f172a/fff?text=CC">
 
   <!-- manifest.json 파일 링크 (경로 수정) -->
   <link rel="manifest" href="/returnmoney/manifest.json">
@@ -43,7 +46,7 @@
 <div id="root"></div>
 
 <script type="text/babel">
-  // 화폐 단위를 정의합니다.
+  // 화폐 단위를 정의합니다. (큰 단위부터 작은 단위 순으로 정렬되어 있어야 합니다)
   const denominations = [
     { name: '오만원권', value: 50000, type: 'bill' },
     { name: '만원권', value: 10000, type: 'bill' },
@@ -68,6 +71,9 @@
       denominations.reduce((acc, denom) => ({ ...acc, [denom.value]: '' }), {})
     );
 
+    // 새로운 기능: 금액을 개수로 변환하기 위한 입력 상태
+    const [inputTargetAmount, setInputTargetAmount] = useState('');
+
     // 입력 필드 변경을 처리하는 함수
     const handleInputChange = (value, denom) => {
       // 숫자가 아닌 문자를 제거하고 빈 문자열을 0으로 변환
@@ -78,11 +84,12 @@
       }));
     };
 
-    // 모든 입력 필드를 초기화하는 함수
+    // 모든 입력 필드를 초기화하는 함수 (새로운 입력 필드도 포함)
     const handleReset = () => {
       setQuantities(
         denominations.reduce((acc, denom) => ({ ...acc, [denom.value]: '' }), {})
       );
+      setInputTargetAmount(''); // 목표 금액 입력 필드 초기화
     };
 
     // 금액 계산 (최적화를 위해 useMemo 사용)
@@ -105,6 +112,25 @@
 
       return { billTotal, coinTotal, grandTotal };
     }, [quantities]);
+
+    // 새로운 기능: 목표 금액에서 지폐/동전 개수를 계산하는 함수
+    const calculateQuantitiesFromTarget = () => {
+      let amountToConvert = parseInt(inputTargetAmount) || 0;
+      if (amountToConvert < 0) amountToConvert = 0; // 음수 방지
+
+      const newQuantities = {};
+      denominations.forEach(denom => {
+        if (amountToConvert >= denom.value) {
+          const count = Math.floor(amountToConvert / denom.value);
+          newQuantities[denom.value] = String(count); // input value를 위해 문자열로 저장
+          amountToConvert -= count * denom.value; // 남은 금액 업데이트
+        } else {
+          newQuantities[denom.value] = ''; // 해당 화폐는 사용하지 않음
+        }
+      });
+      setQuantities(newQuantities); // 계산된 개수로 상태 업데이트
+    };
+
 
     // UI 구성 요소 렌더링
     const renderItem = (denom) => (
@@ -157,8 +183,33 @@
             </button>
           </div>
 
-          {/* 지폐 섹션 */}
+          {/* 새로운 기능: 금액을 개수로 변환 섹션 */}
           <div className="bg-white rounded-xl p-2 shadow-md border border-gray-200">
+            <h2 className="text-base font-bold text-gray-800 mb-1">↔️ 금액을 개수로 변환</h2>
+            <div className="flex items-center space-x-2 py-1">
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="총 금액 입력"
+                value={inputTargetAmount}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^0-9]/g, ''); // 숫자만 허용
+                  setInputTargetAmount(value);
+                }}
+                className="flex-1 h-8 text-right text-gray-800 text-sm font-bold bg-gray-200 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+              />
+              <button
+                onClick={calculateQuantitiesFromTarget}
+                className="px-3 py-1 bg-blue-600 text-white font-bold text-sm rounded-lg shadow-md hover:bg-blue-500 transition-colors duration-200"
+              >
+                계산
+              </button>
+            </div>
+          </div>
+
+
+          {/* 지폐 섹션 */}
+          <div className="bg-white rounded-xl p-2 shadow-md border border-gray-200 mt-2"> {/* mt-2 추가로 간격 확보 */}
             <h2 className="text-base font-bold text-gray-800 mb-1">💵 지폐</h2>
             {denominations.filter(d => d.type === 'bill').map(renderItem)}
             {/* 점선 제거 */}
@@ -211,10 +262,6 @@
     });
   }
 </script>
-
-<!-- 제거된: Inline manifest.json for a single file -->
-<!-- 제거된: Inline service worker for a single file -->
-<!-- 제거된: Dynamic SW file creation 및 polyfill 스크립트 -->
 
 </body>
 </html>
