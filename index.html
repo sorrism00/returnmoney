@@ -80,12 +80,13 @@
       }));
     };
 
-    // 금액 입력 필드 변경을 처리하는 함수 (새로운 기능)
+    // 금액 입력 필드 변경을 처리하는 함수
     const handleAmountChange = (value, denom) => {
-      const cleanValue = value.replace(/[^0-9]/g, ''); // 숫자만 허용 (콤마 제거 포함)
+      // 입력된 값에서 숫자 이외의 문자 (콤마 포함) 제거
+      const cleanValue = value.replace(/[^0-9]/g, '');
       const amount = parseInt(cleanValue) || 0;
 
-      if (denom.value === 0) { // 0으로 나누는 경우 방지 (현재 화폐 단위에는 해당 없음)
+      if (denom.value === 0) { // 0으로 나누는 경우 방지 (실제 화폐 단위에는 해당 없음)
         setQuantities(prev => ({ ...prev, [denom.value]: '' }));
         return;
       }
@@ -96,6 +97,10 @@
       // 입력 필드를 비웠을 때는 개수도 비우도록 처리
       setQuantities(prev => ({
         ...prev,
+        // 금액 입력 필드 자체에는 포맷된 값이 표시되므로,
+        // 개수 필드는 계산된 값으로 업데이트하고
+        // 여기서 직접 금액 필드의 value를 변경하지 않습니다.
+        // React의 단방향 데이터 흐름에 따라 `currentAmount`가 자동으로 업데이트됩니다.
         [denom.value]: cleanValue === '' ? '' : String(calculatedQuantity)
       }));
     };
@@ -153,12 +158,12 @@
           </div>
 
           <div className="flex-1 flex items-center justify-end ml-2">
-            {/* 금액 입력 필드 (새로운 기능) */}
+            {/* 금액 입력 필드 */}
             <input
               type="text"
               inputMode="numeric"
               placeholder="0"
-              value={formatCurrency(currentAmount)} {/* 항상 포맷된 금액을 표시 */}
+              value={formatCurrency(currentAmount)}
               onChange={(e) => handleAmountChange(e.target.value, denom)}
               className="w-28 h-8 text-right text-gray-800 text-sm font-bold bg-gray-200 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
             />
