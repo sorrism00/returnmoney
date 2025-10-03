@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -7,14 +7,15 @@
 
   <!-- PWA 관련 메타 태그 -->
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes"> <!-- 추가: Deprecated 경고 해결 -->
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="계산기">
   <!-- 업로드된 이미지 파일 URL로 변경 -->
   <link rel="apple-touch-icon" sizes="180x180" href="https://placehold.co/180x180/0f172a/fff?text=CC">
   <meta name="theme-color" content="#0f172a">
-  
-  <!-- manifest.json 파일 링크 -->
-  <link rel="manifest" href="/manifest.json">
+
+  <!-- manifest.json 파일 링크 (경로 수정) -->
+  <link rel="manifest" href="/returnmoney/manifest.json">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -76,7 +77,7 @@
         [denom.value]: cleanValue
       }));
     };
-    
+
     // 모든 입력 필드를 초기화하는 함수
     const handleReset = () => {
       setQuantities(
@@ -92,7 +93,7 @@
       denominations.forEach(denom => {
         const quantity = parseInt(quantities[denom.value]) || 0;
         const amount = quantity * denom.value;
-        
+
         if (denom.type === 'bill') {
           billTotal += amount;
         } else {
@@ -101,7 +102,7 @@
       });
 
       const grandTotal = billTotal + coinTotal;
-      
+
       return { billTotal, coinTotal, grandTotal };
     }, [quantities]);
 
@@ -113,7 +114,7 @@
           {/* 글자 크기를 text-sm으로 줄여서 공간 확보 */}
           <span className="text-gray-700 text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis">{denom.name}</span>
         </div>
-        
+
         <div className="flex items-center space-x-1 flex-shrink-0">
           <input
             type="text"
@@ -199,10 +200,10 @@
 </script>
 
 <script>
-  // Service Worker Registration
+  // Service Worker Registration (경로 수정)
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').then(registration => {
+      navigator.serviceWorker.register('/returnmoney/sw.js').then(registration => {
         console.log('SW registered: ', registration);
       }).catch(registrationError => {
         console.log('SW registration failed: ', registrationError);
@@ -211,94 +212,9 @@
   }
 </script>
 
-<!-- Inline manifest.json for a single file -->
-<script type="application/json" id="manifest">
-{
-  "name": "회수금 계산기",
-  "short_name": "계산기",
-  "description": "간단한 회수금 계산기",
-  "start_url": ".",
-  "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
-  "icons": [
-    {
-      "src": "https://placehold.co/180x180/0f172a/fff?text=CC",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "https://placehold.co/180x180/0f172a/fff?text=CC",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
-}
-</script>
-
-<!-- Inline service worker for a single file -->
-<script id="sw-script">
-  self.addEventListener('install', (event) => {
-    event.waitUntil(
-      caches.open('currency-calculator-v1').then((cache) => {
-        return cache.addAll([
-          '/',
-          '/index.html',
-          'https://unpkg.com/react@18/umd/react.production.min.js',
-          'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js',
-          'https://unpkg.com/@babel/standalone/babel.min.js',
-          'https://cdn.tailwindcss.com',
-        ]);
-      })
-    );
-    self.skipWaiting();
-  });
-
-  self.addEventListener('fetch', (event) => {
-    event.respondWith(
-      caches.match(event.request).then((response) => {
-        return response || fetch(event.request);
-      })
-    );
-  });
-</script>
-<script>
-  // Dynamic SW file creation
-  const swCode = document.getElementById('sw-script').textContent;
-  const manifest = document.getElementById('manifest').textContent;
-  
-  const swBlob = new Blob([swCode], { type: 'application/javascript' });
-  const manifestBlob = new Blob([manifest], { type: 'application/json' });
-
-  const swUrl = URL.createObjectURL(swBlob);
-  const manifestUrl = URL.createObjectURL(manifestBlob);
-  
-  const originalRegister = navigator.serviceWorker.register;
-  const originalFetch = window.fetch;
-
-  // Polyfill service worker registration
-  navigator.serviceWorker.register = (path) => {
-    if (path === '/sw.js') {
-      return originalRegister.call(navigator.serviceWorker, swUrl);
-    }
-    return originalRegister.call(navigator.serviceWorker, path);
-  };
-  
-  // Polyfill manifest fetch
-  window.fetch = (input, init) => {
-    if (input instanceof Request && input.url.endsWith('/manifest.json')) {
-      return new Response(manifest, {
-        headers: { 'Content-Type': 'application/json' }
-      });
-    } else if (typeof input === 'string' && input.endsWith('/manifest.json')) {
-      return new Response(manifest, {
-        headers: { 'Content-Type': 'application/json' }
-      });
-    }
-    return originalFetch.call(window, input, init);
-  };
-  
-</script>
+<!-- 제거된: Inline manifest.json for a single file -->
+<!-- 제거된: Inline service worker for a single file -->
+<!-- 제거된: Dynamic SW file creation 및 polyfill 스크립트 -->
 
 </body>
 </html>
