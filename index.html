@@ -308,42 +308,42 @@
 
           {/* 새로운 컨테이너: 동전 보충, 증액, 감액 (가로 배치) */}
           <div className="flex justify-between space-x-2 mt-2">
-            {/* 섹션 1: 동전 보충 */}
-            <div className="bg-slate-700 rounded-xl p-3 shadow-lg text-white flex-1">
-              <h2 className="text-lg font-bold mb-2">(-) 동전보충</h2>
+            {/* 섹션 1: 동전 보충 (빨간색) */}
+            <div className="bg-red-700 rounded-xl p-3 shadow-lg text-white flex-1">
+              <h2 className="text-sm font-bold mb-2">(-) 동전보충</h2> {/* 글자 크기 조정 */}
               <input
                 type="text"
                 inputMode="numeric"
                 placeholder="0"
                 value={coinReplenishmentAmount === '' ? '' : formatCurrency(parseInt(coinReplenishmentAmount) || 0)}
                 onChange={handleCoinReplenishmentChange}
-                className="w-full h-8 text-right text-white text-lg font-extrabold bg-slate-700 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+                className="w-full h-8 text-right text-white text-sm font-bold bg-red-700 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
               />
             </div>
 
-            {/* 섹션 2: 증액 */}
-            <div className="bg-slate-700 rounded-xl p-3 shadow-lg text-white flex-1">
-              <h2 className="text-lg font-bold mb-2">(+) 증액</h2>
+            {/* 섹션 2: 증액 (파란색) */}
+            <div className="bg-blue-700 rounded-xl p-3 shadow-lg text-white flex-1">
+              <h2 className="text-sm font-bold mb-2">(+) 증액</h2> {/* 글자 크기 조정 */}
               <input
                 type="text"
                 inputMode="numeric"
                 placeholder="0"
                 value={increaseAmount === '' ? '' : formatCurrency(parseInt(increaseAmount) || 0)}
                 onChange={handleIncreaseChange}
-                className="w-full h-8 text-right text-white text-lg font-extrabold bg-slate-700 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+                className="w-full h-8 text-right text-white text-sm font-bold bg-blue-700 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
               />
             </div>
 
-            {/* 섹션 3: 감액 */}
-            <div className="bg-slate-700 rounded-xl p-3 shadow-lg text-white flex-1">
-              <h2 className="text-lg font-bold mb-2">(-) 감액</h2>
+            {/* 섹션 3: 감액 (빨간색) */}
+            <div className="bg-red-700 rounded-xl p-3 shadow-lg text-white flex-1">
+              <h2 className="text-sm font-bold mb-2">(-) 감액</h2> {/* 글자 크기 조정 */}
               <input
                 type="text"
                 inputMode="numeric"
                 placeholder="0"
                 value={decreaseAmount === '' ? '' : formatCurrency(parseInt(decreaseAmount) || 0)}
                 onChange={handleDecreaseChange}
-                className="w-full h-8 text-right text-white text-lg font-extrabold bg-slate-700 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+                className="w-full h-8 text-right text-white text-sm font-bold bg-red-700 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
               />
             </div>
           </div>
