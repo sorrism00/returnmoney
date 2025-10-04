@@ -10,12 +10,12 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="계산기">
-  <!-- 업로드된 이미지 파일 URL로 변경 -->
-  <link rel="apple-touch-icon" sizes="180x180" href="https://placehold.co/180x180/0f172a/fff?text=CC">
+  <!-- 업로드된 이미지 파일 URL로 변경 (로컬 경로로 수정) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/returnmoney/icon-180x180.png"> <!-- 180x180 아이콘 파일 경로로 변경 -->
   <meta name="theme-color" content="#0f172a">
 
-  <!-- Favicon 링크 추가 -->
-  <link rel="icon" type="image/png" href="https://placehold.co/180x180/0f172a/fff?text=CC">
+  <!-- Favicon 링크 추가 (로컬 경로로 수정) -->
+  <link rel="icon" type="image/png" href="/returnmoney/icon-192x192.png"> <!-- Favicon 경로도 로컬 파일로 변경 -->
 
   <!-- manifest.json 파일 링크 -->
   <link rel="manifest" href="/returnmoney/manifest.json">
@@ -209,7 +209,7 @@
       const { count, amountInput } = quantities[denom.value]; // count와 amountInput을 분리하여 사용
 
       return (
-        <div key={denom.value} className="flex items-center justify-between py-0.5 border-b border-gray-300"> {/* py-1 -> py-0.5 */}
+        <div key={denom.value} className="flex items-center justify-between py-0.5 border-b border-gray-300">
           <div className="flex-1 pr-1">
             <span className="text-gray-700 text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis">{denom.name}</span>
           </div>
@@ -247,8 +247,8 @@
       // 컨테이너가 화면 전체 높이를 차지하도록 min-h-screen을 사용하고, flex-col로 콘텐츠를 중앙에 배치합니다.
       <div className="min-h-screen bg-slate-900 font-sans flex flex-col items-center justify-center">
         {/* 전체 컨테이너는 max-w-sm으로 제한하여 PC 화면에서 너무 커지지 않게 합니다. */}
-        <div className="w-full max-w-sm bg-slate-100 rounded-2xl shadow-xl p-2 space-y-1 transform transition-all duration-300"> {/* p-4 -> p-2, space-y-2 -> space-y-1 */}
-          <div className="flex justify-between items-center mb-1"> {/* mb-2 -> mb-1 */}
+        <div className="w-full max-w-sm bg-slate-100 rounded-2xl shadow-xl p-2 space-y-1 transform transition-all duration-300">
+          <div className="flex justify-between items-center mb-1">
             {/* 타이틀 글자 크기 축소 */}
             <h1 className="text-xl font-extrabold text-gray-800 pb-1">
               회수금 계산기
@@ -263,53 +263,54 @@
           </div>
 
           {/* 마감 전 금고 금액 섹션 */}
-          <div className="bg-slate-800 rounded-xl p-2 shadow-lg text-white mb-2"> {/* p-3 -> p-2, mb-4 -> mb-2 */}
+          <div className="bg-slate-800 rounded-xl p-2 shadow-lg text-white mb-2">
             <div className="flex justify-between items-center">
-              <h2 className="text-base font-bold">마감 전 금고 금액</h2> {/* text-lg -> text-base */}
+              <h2 className="text-base font-bold">마감 전 금고 금액</h2>
               <input
                 type="text"
                 inputMode="numeric"
                 placeholder="0"
                 value={closingVaultAmount === '' ? '' : formatCurrency(parseInt(closingVaultAmount) || 0)}
                 onChange={handleClosingVaultAmountChange}
+                // 배경색을 부모 섹션과 동일하게 맞춤
                 className="w-36 h-7 text-right text-white text-base font-extrabold bg-slate-800 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
-              /> {/* h-8 -> h-7, text-lg -> text-base */}
+              />
             </div>
           </div>
 
           {/* 지폐 섹션 */}
-          <div className="bg-white rounded-xl p-1 shadow-md border border-gray-200"> {/* p-2 -> p-1 */}
+          <div className="bg-white rounded-xl p-1 shadow-md border border-gray-200">
             {denominations.filter(d => d.type === 'bill').map(renderItem)}
-            <div className="mt-1 pt-1 flex justify-between items-center font-bold text-sm text-gray-800"> {/* mt-2 pt-2 -> mt-1 pt-1 */}
+            <div className="mt-1 pt-1 flex justify-between items-center font-bold text-sm text-gray-800">
               <span>💵 지폐 소계:</span>
               <span>{formatCurrency(totals.billTotal)}</span>
             </div>
           </div>
 
           {/* 동전 섹션 */}
-          <div className="bg-white rounded-xl p-1 shadow-md border border-gray-200"> {/* p-2 -> p-1 */}
+          <div className="bg-white rounded-xl p-1 shadow-md border border-gray-200">
             {denominations.filter(d => d.type === 'coin').map(renderItem)}
-            <div className="mt-1 pt-1 flex justify-between items-center font-bold text-sm text-gray-800"> {/* mt-2 pt-2 -> mt-1 pt-1 */}
+            <div className="mt-1 pt-1 flex justify-between items-center font-bold text-sm text-gray-800">
               <span>🪙 동전 소계:</span>
               <span>{formatCurrency(totals.coinTotal)}</span>
             </div>
           </div>
 
           {/* 총계 섹션 */}
-          <div className="bg-slate-800 rounded-xl p-2 shadow-lg text-white"> {/* p-3 -> p-2 */}
+          <div className="bg-slate-800 rounded-xl p-2 shadow-lg text-white">
             <div className="flex justify-between items-center">
-              <h2 className="text-base font-bold">합계</h2> {/* text-lg -> text-base */}
-              <span className="text-lg font-extrabold text-amber-300"> {/* text-xl -> text-lg */}
+              <h2 className="text-base font-bold">합계</h2>
+              <span className="text-lg font-extrabold text-amber-300">
                 {formatCurrency(totals.grandTotal)}
               </span>
             </div>
           </div>
 
           {/* 새로운 컨테이너: 동전 보충, 증액, 감액 (가로 배치) */}
-          <div className="flex justify-between space-x-1 mt-1"> {/* space-x-2 -> space-x-1, mt-2 -> mt-1 */}
+          <div className="flex justify-between space-x-1 mt-1">
             {/* 섹션 1: 동전 보충 (빨간색) */}
-            <div className="bg-red-700 rounded-xl p-2 shadow-lg text-white flex-1"> {/* p-3 -> p-2 */}
-              <h2 className="text-sm font-bold mb-1">(-) 동전보충</h2> {/* mb-2 -> mb-1 */}
+            <div className="bg-red-700 rounded-xl p-2 shadow-lg text-white flex-1">
+              <h2 className="text-sm font-bold mb-1">(-) 동전보충</h2>
               <input
                 type="text"
                 inputMode="numeric"
@@ -317,12 +318,12 @@
                 value={coinReplenishmentAmount === '' ? '' : formatCurrency(parseInt(coinReplenishmentAmount) || 0)}
                 onChange={handleCoinReplenishmentChange}
                 className="w-full h-7 text-right text-white text-sm font-bold bg-red-700 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
-              /> {/* h-8 -> h-7 */}
+              />
             </div>
 
             {/* 섹션 2: 증액 (파란색) */}
-            <div className="bg-blue-700 rounded-xl p-2 shadow-lg text-white flex-1"> {/* p-3 -> p-2 */}
-              <h2 className="text-sm font-bold mb-1">(+) 증액</h2> {/* mb-2 -> mb-1 */}
+            <div className="bg-blue-700 rounded-xl p-2 shadow-lg text-white flex-1">
+              <h2 className="text-sm font-bold mb-1">(+) 증액</h2>
               <input
                 type="text"
                 inputMode="numeric"
@@ -330,12 +331,12 @@
                 value={increaseAmount === '' ? '' : formatCurrency(parseInt(increaseAmount) || 0)}
                 onChange={handleIncreaseChange}
                 className="w-full h-7 text-right text-white text-sm font-bold bg-blue-700 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
-              /> {/* h-8 -> h-7 */}
+              />
             </div>
 
             {/* 섹션 3: 감액 (빨간색) */}
-            <div className="bg-red-700 rounded-xl p-2 shadow-lg text-white flex-1"> {/* p-3 -> p-2 */}
-              <h2 className="text-sm font-bold mb-1">(-) 감액</h2> {/* mb-2 -> mb-1 */}
+            <div className="bg-red-700 rounded-xl p-2 shadow-lg text-white flex-1">
+              <h2 className="text-sm font-bold mb-1">(-) 감액</h2>
               <input
                 type="text"
                 inputMode="numeric"
@@ -343,15 +344,15 @@
                 value={decreaseAmount === '' ? '' : formatCurrency(parseInt(decreaseAmount) || 0)}
                 onChange={handleDecreaseChange}
                 className="w-full h-7 text-right text-white text-sm font-bold bg-red-700 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
-              /> {/* h-8 -> h-7 */}
+              />
             </div>
           </div>
 
           {/* 마감 후 금고 금액 섹션 */}
-          <div className="bg-slate-800 rounded-xl p-2 shadow-lg text-white mt-1"> {/* p-3 -> p-2, mt-2 -> mt-1 */}
+          <div className="bg-slate-800 rounded-xl p-2 shadow-lg text-white mt-1">
             <div className="flex justify-between items-center">
-              <h2 className="text-base font-bold">마감 후 금고 금액</h2> {/* text-lg -> text-base */}
-              <span className="text-lg font-extrabold text-amber-300"> {/* text-xl -> text-lg */}
+              <h2 className="text-base font-bold">마감 후 금고 금액</h2>
+              <span className="text-lg font-extrabold text-amber-300">
                 {formatCurrency(totals.postClosingVaultAmount)}
               </span>
             </div>
