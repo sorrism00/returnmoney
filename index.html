@@ -25,7 +25,7 @@
 
   <!-- React & ReactDOM CDN -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react.production.min.js"></script>
   <!-- Babel CDN for JSX support -->
   <script src="https://unpkg.com/@babel/standalone/babel.js"></script>
 
@@ -76,6 +76,13 @@
 
     // 새로운 상태: 마감 전 금고 금액
     const [closingVaultAmount, setClosingVaultAmount] = useState('');
+    // 새로운 상태: 동전 보충 금액
+    const [coinReplenishmentAmount, setCoinReplenishmentAmount] = useState('');
+    // 새로운 상태: 증액 금액
+    const [increaseAmount, setIncreaseAmount] = useState('');
+    // 새로운 상태: 감액 금액
+    const [decreaseAmount, setDecreaseAmount] = useState('');
+
 
     // 개수 입력 필드 변경을 처리하는 함수
     const handleQuantityChange = (value, denom) => {
@@ -123,6 +130,24 @@
       setClosingVaultAmount(value);
     };
 
+    // 동전 보충 금액 입력 필드 변경을 처리하는 함수
+    const handleCoinReplenishmentChange = (e) => {
+      const value = e.target.value.replace(/[^0-9]/g, '');
+      setCoinReplenishmentAmount(value);
+    };
+
+    // 증액 금액 입력 필드 변경을 처리하는 함수
+    const handleIncreaseChange = (e) => {
+      const value = e.target.value.replace(/[^0-9]/g, '');
+      setIncreaseAmount(value);
+    };
+
+    // 감액 금액 입력 필드 변경을 처리하는 함수
+    const handleDecreaseChange = (e) => {
+      const value = e.target.value.replace(/[^0-9]/g, '');
+      setDecreaseAmount(value);
+    };
+
 
     // 모든 입력 필드를 초기화하는 함수 (새로 추가된 필드 포함)
     const handleReset = () => {
@@ -132,7 +157,10 @@
           [denom.value]: { count: '', amountInput: '' }
         }), {})
       );
-      setClosingVaultAmount(''); // 마감 전 금고 금액 초기화
+      setClosingVaultAmount('');
+      setCoinReplenishmentAmount('');
+      setIncreaseAmount('');
+      setDecreaseAmount('');
     };
 
     // 금액 계산 (최적화를 위해 useMemo 사용)
@@ -156,11 +184,25 @@
 
       // 마감 후 금고 금액 계산
       const parsedClosingVaultAmount = parseInt(closingVaultAmount) || 0;
-      const postClosingVaultAmount = parsedClosingVaultAmount + grandTotal;
+      const parsedCoinReplenishmentAmount = parseInt(coinReplenishmentAmount) || 0;
+      const parsedIncreaseAmount = parseInt(increaseAmount) || 0;
+      const parsedDecreaseAmount = parseInt(decreaseAmount) || 0;
+
+      const postClosingVaultAmount =
+        parsedClosingVaultAmount +
+        grandTotal -
+        parsedCoinReplenishmentAmount +
+        parsedIncreaseAmount -
+        parsedDecreaseAmount;
 
 
-      return { billTotal, coinTotal, grandTotal, postClosingVaultAmount }; // postClosingVaultAmount 추가
-    }, [quantities, closingVaultAmount]); // closingVaultAmount를 의존성 배열에 추가
+      return {
+        billTotal,
+        coinTotal,
+        grandTotal,
+        postClosingVaultAmount
+      };
+    }, [quantities, closingVaultAmount, coinReplenishmentAmount, increaseAmount, decreaseAmount]); // 모든 관련 상태를 의존성 배열에 추가
 
     // UI 구성 요소 렌더링
     const renderItem = (denom) => {
@@ -220,7 +262,7 @@
             </button>
           </div>
 
-          {/* 새로운 섹션: 마감 전 금고 금액 */}
+          {/* 마감 전 금고 금액 섹션 */}
           <div className="bg-slate-800 rounded-xl p-3 shadow-lg text-white mb-4">
             <div className="flex justify-between items-center">
               <h2 className="text-lg font-bold">마감 전 금고 금액</h2>
@@ -230,7 +272,7 @@
                 placeholder="0"
                 value={closingVaultAmount === '' ? '' : formatCurrency(parseInt(closingVaultAmount) || 0)}
                 onChange={handleClosingVaultAmountChange}
-                // 배경색 및 글자색 수정 (부모 섹션과 동일한 bg-slate-800)
+                // 배경색을 부모 섹션과 동일하게 맞춤
                 className="w-36 h-8 text-right text-white text-lg font-extrabold bg-slate-800 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
               />
             </div>
@@ -238,10 +280,8 @@
 
           {/* 지폐 섹션 */}
           <div className="bg-white rounded-xl p-2 shadow-md border border-gray-200">
-            {/* 💵 지폐 제목 삭제 */}
             {denominations.filter(d => d.type === 'bill').map(renderItem)}
             <div className="mt-2 pt-2 flex justify-between items-center font-bold text-sm text-gray-800">
-              {/* 💵 지폐 소계 수정 */}
               <span>💵 지폐 소계:</span>
               <span>{formatCurrency(totals.billTotal)}</span>
             </div>
@@ -249,10 +289,8 @@
 
           {/* 동전 섹션 */}
           <div className="bg-white rounded-xl p-2 shadow-md border border-gray-200">
-            {/* 🪙 동전 제목 삭제 */}
             {denominations.filter(d => d.type === 'coin').map(renderItem)}
             <div className="mt-2 pt-2 flex justify-between items-center font-bold text-sm text-gray-800">
-              {/* 🪙 동전 소계 수정 */}
               <span>🪙 동전 소계:</span>
               <span>{formatCurrency(totals.coinTotal)}</span>
             </div>
@@ -268,8 +306,53 @@
             </div>
           </div>
 
-          {/* 새로운 섹션: 마감 후 금고 금액 */}
-          <div className="bg-slate-800 rounded-xl p-3 shadow-lg text-white mt-2"> {/* mt-2로 합계 섹션과 간격 확보 */}
+          {/* 새로운 섹션 1: 동전 보충 */}
+          <div className="bg-slate-700 rounded-xl p-3 shadow-lg text-white mt-2">
+            <div className="flex justify-between items-center">
+              <h2 className="text-lg font-bold">(-) 동전보충</h2>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="0"
+                value={coinReplenishmentAmount === '' ? '' : formatCurrency(parseInt(coinReplenishmentAmount) || 0)}
+                onChange={handleCoinReplenishmentChange}
+                className="w-36 h-8 text-right text-white text-lg font-extrabold bg-slate-700 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-::-webkit-outer-spin-button]:appearance-none"
+              />
+            </div>
+          </div>
+
+          {/* 새로운 섹션 2: 증액 */}
+          <div className="bg-slate-700 rounded-xl p-3 shadow-lg text-white mt-2">
+            <div className="flex justify-between items-center">
+              <h2 className="text-lg font-bold">(+) 증액</h2>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="0"
+                value={increaseAmount === '' ? '' : formatCurrency(parseInt(increaseAmount) || 0)}
+                onChange={handleIncreaseChange}
+                className="w-36 h-8 text-right text-white text-lg font-extrabold bg-slate-700 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+              />
+            </div>
+          </div>
+
+          {/* 새로운 섹션 3: 감액 */}
+          <div className="bg-slate-700 rounded-xl p-3 shadow-lg text-white mt-2">
+            <div className="flex justify-between items-center">
+              <h2 className="text-lg font-bold">(-) 감액</h2>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="0"
+                value={decreaseAmount === '' ? '' : formatCurrency(parseInt(decreaseAmount) || 0)}
+                onChange={handleDecreaseChange}
+                className="w-36 h-8 text-right text-white text-lg font-extrabold bg-slate-700 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+              />
+            </div>
+          </div>
+
+          {/* 마감 후 금고 금액 섹션 */}
+          <div className="bg-slate-800 rounded-xl p-3 shadow-lg text-white mt-2">
             <div className="flex justify-between items-center">
               <h2 className="text-lg font-bold">마감 후 금고 금액</h2>
               <span className="text-xl font-extrabold text-amber-300">
