@@ -23,9 +23,9 @@
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- React & ReactDOM CDN -->
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react.production.min.js"></script>
+  <!-- React & ReactDOM CDN (버전 명시적으로 변경) -->
+  <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
   <!-- Babel CDN for JSX support -->
   <script src="https://unpkg.com/@babel/standalone/babel.js"></script>
 
@@ -316,7 +316,7 @@
                 placeholder="0"
                 value={coinReplenishmentAmount === '' ? '' : formatCurrency(parseInt(coinReplenishmentAmount) || 0)}
                 onChange={handleCoinReplenishmentChange}
-                className="w-36 h-8 text-right text-white text-lg font-extrabold bg-slate-700 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-::-webkit-outer-spin-button]:appearance-none"
+                className="w-36 h-8 text-right text-white text-lg font-extrabold bg-slate-700 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
               />
             </div>
           </div>
@@ -346,7 +346,7 @@
                 placeholder="0"
                 value={decreaseAmount === '' ? '' : formatCurrency(parseInt(decreaseAmount) || 0)}
                 onChange={handleDecreaseChange}
-                className="w-36 h-8 text-right text-white text-lg font-extrabold bg-slate-700 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+                className="w-36 h-8 text-right text-white text-lg font-extrabold bg-slate-700 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
               />
             </div>
           </div>
