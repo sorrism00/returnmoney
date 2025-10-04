@@ -154,8 +154,13 @@
 
       const grandTotal = billTotal + coinTotal;
 
-      return { billTotal, coinTotal, grandTotal };
-    }, [quantities]);
+      // 마감 후 금고 금액 계산
+      const parsedClosingVaultAmount = parseInt(closingVaultAmount) || 0;
+      const postClosingVaultAmount = parsedClosingVaultAmount + grandTotal;
+
+
+      return { billTotal, coinTotal, grandTotal, postClosingVaultAmount }; // postClosingVaultAmount 추가
+    }, [quantities, closingVaultAmount]); // closingVaultAmount를 의존성 배열에 추가
 
     // UI 구성 요소 렌더링
     const renderItem = (denom) => {
@@ -225,8 +230,8 @@
                 placeholder="0"
                 value={closingVaultAmount === '' ? '' : formatCurrency(parseInt(closingVaultAmount) || 0)}
                 onChange={handleClosingVaultAmountChange}
-                // 배경색 및 글자색 수정
-                className="w-36 h-8 text-right text-white text-lg font-extrabold bg-slate-900 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+                // 배경색 및 글자색 수정 (부모 섹션과 동일한 bg-slate-800)
+                className="w-36 h-8 text-right text-white text-lg font-extrabold bg-slate-800 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
               />
             </div>
           </div>
@@ -262,6 +267,17 @@
               </span>
             </div>
           </div>
+
+          {/* 새로운 섹션: 마감 후 금고 금액 */}
+          <div className="bg-slate-800 rounded-xl p-3 shadow-lg text-white mt-2"> {/* mt-2로 합계 섹션과 간격 확보 */}
+            <div className="flex justify-between items-center">
+              <h2 className="text-lg font-bold">마감 후 금고 금액</h2>
+              <span className="text-xl font-extrabold text-amber-300">
+                {formatCurrency(totals.postClosingVaultAmount)}
+              </span>
+            </div>
+          </div>
+
         </div>
       </div>
     );
