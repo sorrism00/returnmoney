@@ -306,49 +306,43 @@
             </div>
           </div>
 
-          {/* 새로운 섹션 1: 동전 보충 */}
+          {/* 새로운 섹션 1: 동전 보충 (수정된 레이아웃) */}
           <div className="bg-slate-700 rounded-xl p-3 shadow-lg text-white mt-2">
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-bold">(-) 동전보충</h2>
-              <input
-                type="text"
-                inputMode="numeric"
-                placeholder="0"
-                value={coinReplenishmentAmount === '' ? '' : formatCurrency(parseInt(coinReplenishmentAmount) || 0)}
-                onChange={handleCoinReplenishmentChange}
-                className="w-36 h-8 text-right text-white text-lg font-extrabold bg-slate-700 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
-              />
-            </div>
+            <h2 className="text-lg font-bold mb-2">(-) 동전보충</h2> {/* mb-2 추가 */}
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="0"
+              value={coinReplenishmentAmount === '' ? '' : formatCurrency(parseInt(coinReplenishmentAmount) || 0)}
+              onChange={handleCoinReplenishmentChange}
+              className="w-full h-8 text-right text-white text-lg font-extrabold bg-slate-700 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+            />
           </div>
 
-          {/* 새로운 섹션 2: 증액 */}
+          {/* 새로운 섹션 2: 증액 (수정된 레이아웃) */}
           <div className="bg-slate-700 rounded-xl p-3 shadow-lg text-white mt-2">
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-bold">(+) 증액</h2>
-              <input
-                type="text"
-                inputMode="numeric"
-                placeholder="0"
-                value={increaseAmount === '' ? '' : formatCurrency(parseInt(increaseAmount) || 0)}
-                onChange={handleIncreaseChange}
-                className="w-36 h-8 text-right text-white text-lg font-extrabold bg-slate-700 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
-              />
-            </div>
+            <h2 className="text-lg font-bold mb-2">(+) 증액</h2> {/* mb-2 추가 */}
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="0"
+              value={increaseAmount === '' ? '' : formatCurrency(parseInt(increaseAmount) || 0)}
+              onChange={handleIncreaseChange}
+              className="w-full h-8 text-right text-white text-lg font-extrabold bg-slate-700 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+            />
           </div>
 
-          {/* 새로운 섹션 3: 감액 */}
+          {/* 새로운 섹션 3: 감액 (수정된 레이아웃) */}
           <div className="bg-slate-700 rounded-xl p-3 shadow-lg text-white mt-2">
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-bold">(-) 감액</h2>
-              <input
-                type="text"
-                inputMode="numeric"
-                placeholder="0"
-                value={decreaseAmount === '' ? '' : formatCurrency(parseInt(decreaseAmount) || 0)}
-                onChange={handleDecreaseChange}
-                className="w-36 h-8 text-right text-white text-lg font-extrabold bg-slate-700 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
-              />
-            </div>
+            <h2 className="text-lg font-bold mb-2">(-) 감액</h2> {/* mb-2 추가 */}
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="0"
+              value={decreaseAmount === '' ? '' : formatCurrency(parseInt(decreaseAmount) || 0)}
+              onChange={handleDecreaseChange}
+              className="w-full h-8 text-right text-white text-lg font-extrabold bg-slate-700 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:m-0 [&::-webkit-outer-spin-button]:appearance-none"
+            />
           </div>
 
           {/* 마감 후 금고 금액 섹션 */}
