@@ -1,7 +1,7 @@
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    // 금액 입력창 너비 확장을 반영하기 위해 v10으로 업데이트
-    caches.open('currency-calculator-v10').then((cache) => {
+    // 패딩 변경(py-2) 반영을 위해 v11로 업데이트
+    caches.open('currency-calculator-v11').then((cache) => {
       return cache.addAll([
         '/returnmoney/',
         '/returnmoney/index.html',
@@ -17,7 +17,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  const cacheWhitelist = ['currency-calculator-v10'];
+  const cacheWhitelist = ['currency-calculator-v11'];
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
