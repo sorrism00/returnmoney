@@ -1,7 +1,7 @@
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    // 상하단 및 동전 계 여백 제거 반영 v29
-    caches.open('currency-calculator-v29').then((cache) => {
+    // 원단위 금액 우측 여백(pr-2) 추가 반영 v30
+    caches.open('currency-calculator-v30').then((cache) => {
       return cache.addAll([
         '/returnmoney/',
         '/returnmoney/index.html',
@@ -17,7 +17,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  const cacheWhitelist = ['currency-calculator-v29'];
+  const cacheWhitelist = ['currency-calculator-v30'];
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
