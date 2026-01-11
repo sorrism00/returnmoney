@@ -1,8 +1,7 @@
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    // 캐시 이름 변경: currency-calculator-v1 -> currency-calculator-v2
-    // 버전을 올려야 아이폰이 변경된 index.html을 새로 내려받습니다.
-    caches.open('currency-calculator-v8').then((cache) => {
+    // 금액 입력창 너비 확장을 반영하기 위해 v10으로 업데이트
+    caches.open('currency-calculator-v10').then((cache) => {
       return cache.addAll([
         '/returnmoney/',
         '/returnmoney/index.html',
@@ -18,7 +17,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  const cacheWhitelist = ['currency-calculator-v8'];
+  const cacheWhitelist = ['currency-calculator-v10'];
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
