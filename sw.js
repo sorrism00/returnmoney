@@ -1,7 +1,7 @@
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    // 반응형 레이아웃 업데이트 반영 v14
-    caches.open('currency-calculator-v14').then((cache) => {
+    // 카드 패딩 py-2로 변경 반영 v21
+    caches.open('currency-calculator-v21').then((cache) => {
       return cache.addAll([
         '/returnmoney/',
         '/returnmoney/index.html',
@@ -17,7 +17,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  const cacheWhitelist = ['currency-calculator-v14'];
+  const cacheWhitelist = ['currency-calculator-v21'];
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
