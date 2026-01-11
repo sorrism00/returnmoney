@@ -175,7 +175,8 @@
       const bundleLabel = denom.type === 'bill' ? 'strap' : 'bag';
       
       return (
-        <div key={denom.value} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0 hover:bg-white/50 transition-colors px-1">
+        // py-2로 변경하여 상하 간격을 적절히 조정
+        <div key={denom.value} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0 hover:bg-white/50 transition-colors px-1">
           
           {/* 이름 */}
           <div className="w-12 flex-shrink-0">
@@ -209,7 +210,7 @@
               <span className="text-gray-400 text-[10px] font-medium ml-1 w-3">개</span>
             </div>
 
-            {/* 금액 입력 (너비를 w-24에서 w-32로 확장) */}
+            {/* 금액 입력 (w-32 유지) */}
             <div className="flex items-center">
               <input
                 type="text"
