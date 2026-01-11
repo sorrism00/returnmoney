@@ -1,7 +1,7 @@
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    // 레이아웃 너비 최적화(w-7) 및 한 줄 복귀 반영 v25
-    caches.open('currency-calculator-v25').then((cache) => {
+    // 입력란 너비 재배치 및 레이아웃 최적화 반영 v28
+    caches.open('currency-calculator-v28').then((cache) => {
       return cache.addAll([
         '/returnmoney/',
         '/returnmoney/index.html',
@@ -17,7 +17,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  const cacheWhitelist = ['currency-calculator-v25'];
+  const cacheWhitelist = ['currency-calculator-v28'];
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
