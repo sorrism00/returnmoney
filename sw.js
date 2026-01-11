@@ -1,7 +1,7 @@
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    // 텍스트 가독성 강화(진한 색상 적용) 반영 v34
-    caches.open('currency-calculator-v34').then((cache) => {
+    // 모바일 너비 최적화 반영 v35
+    caches.open('currency-calculator-v35').then((cache) => {
       return cache.addAll([
         '/returnmoney/',
         '/returnmoney/index.html',
@@ -17,7 +17,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  const cacheWhitelist = ['currency-calculator-v34'];
+  const cacheWhitelist = ['currency-calculator-v35'];
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
