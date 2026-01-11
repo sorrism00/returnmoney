@@ -244,14 +244,14 @@
                />
                <span className="text-yellow-800 text-[10px] font-bold ml-1 w-3 leading-tight">개</span>
                
-               {/* 금액: w-20 */}
+               {/* 금액: w-20, pr-2 제거 */}
                <input
                   type="text"
                   inputMode="numeric"
                   placeholder="0"
                   value={looseAmountInput}
                   onChange={(e) => handleLooseAmountInputChange(e.target.value, denom)}
-                  className="w-20 h-8 text-right text-sm font-black text-yellow-950 bg-transparent outline-none placeholder-yellow-600 pr-2"
+                  className="w-20 h-8 text-right text-sm font-black text-yellow-950 bg-transparent outline-none placeholder-yellow-600"
                />
             </div>
 
