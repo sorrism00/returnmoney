@@ -104,24 +104,25 @@
         [denom.value]: {
           ...prev[denom.value],
           bundle: cleanValue,
-          bundleAmountInput: bundleValue > 0 ? formatCurrency(bundleValue) : ''
+          bundleAmountInput: bundleValue > 0 ? (bundleValue / 10000) : ''
         }
       }));
     };
 
     const handleBundleAmountInputChange = (value, denom) => {
-      const cleanValue = value.replace(/[^0-9]/g, '');
-      const inputAmount = parseInt(cleanValue) || 0;
+      const cleanValue = value.replace(/[^0-9.]/g, '');
+      const manWonInput = parseFloat(cleanValue) || 0;
+      const actualAmount = manWonInput * 10000;
       const bundleUnit = BUNDLE_VALUES[denom.value];
       
-      const calculatedCount = Math.floor(inputAmount / bundleUnit);
+      const calculatedCount = Math.floor(actualAmount / bundleUnit);
 
       setQuantities(prev => ({
         ...prev,
         [denom.value]: {
           ...prev[denom.value],
           bundle: calculatedCount > 0 ? String(calculatedCount) : '',
-          bundleAmountInput: cleanValue === '' ? '' : Number(cleanValue).toLocaleString()
+          bundleAmountInput: cleanValue
         }
       }));
     };
@@ -197,57 +198,60 @@
       const bundleLabel = denom.type === 'bill' ? 'strap' : 'bag';
       
       return (
-        // flex-col 제거하고 flex-row(기본값)로 복귀하여 한 줄 유지
-        <div key={denom.value} className="flex items-center justify-between border-b border-gray-100 last:border-0 hover:bg-white/50 transition-colors px-1 py-1 min-h-[44px]">
+        <div key={denom.value} className="flex items-center justify-between border-b border-gray-100 last:border-0 hover:bg-white/50 transition-colors px-1 py-0.5 min-h-[36px]">
           
-          {/* 화폐명: 고정 너비 w-12 */}
           <div className="w-12 flex-shrink-0 flex items-center h-full">
             <span className="text-slate-700 text-sm font-extrabold whitespace-nowrap">{denom.name}</span>
           </div>
 
           <div className="flex flex-1 justify-end items-center space-x-1">
             
-            {/* 묶음 그룹 */}
+            {/* 묶음 그룹: 만원 단위 */}
             <div className="flex items-center bg-violet-100 rounded-lg px-2 py-1">
+               {/* 너비 w-9로 확대 */}
                <input
                  type="text"
                  inputMode="numeric"
                  value={bundle}
                  onChange={(e) => handleBundleCountChange(e.target.value, denom)}
-                 // w-8 -> w-7로 변경하여 너비 축소 (2 digit 최적화)
-                 className="w-7 h-8 text-center text-slate-800 text-base font-bold bg-white border border-gray-200 rounded shadow-sm focus:border-violet-400 focus:ring-1 focus:ring-violet-200 outline-none p-0"
+                 className="w-9 h-8 text-center text-slate-800 text-base font-bold bg-white border border-gray-200 rounded shadow-sm focus:border-violet-400 focus:ring-1 focus:ring-violet-200 outline-none p-0"
                />
                <span className="text-violet-500 text-[10px] font-bold ml-1 w-7 overflow-hidden leading-tight">{bundleLabel}</span>
                
-               <input
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="0"
-                  value={bundleAmountInput}
-                  onChange={(e) => handleBundleAmountInputChange(e.target.value, denom)}
-                  className="w-24 h-8 text-right text-sm font-black text-violet-600 bg-transparent outline-none placeholder-violet-300"
-               />
+               {/* 너비 w-20으로 축소 */}
+               <div className="flex items-center justify-end w-20">
+                 <input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="0"
+                    value={bundleAmountInput}
+                    onChange={(e) => handleBundleAmountInputChange(e.target.value, denom)}
+                    className="w-full text-right text-sm font-black text-violet-600 bg-transparent outline-none placeholder-violet-300"
+                 />
+                 <span className="text-xs font-black text-violet-600 ml-0.5 whitespace-nowrap">만원</span>
+               </div>
             </div>
 
-            {/* 낱개 그룹 */}
+            {/* 낱개 그룹: 원 단위 */}
             <div className="flex items-center bg-slate-100 rounded-lg px-2 py-1">
+               {/* 너비 w-9로 확대 */}
                <input
                  type="text"
                  inputMode="numeric"
                  value={count}
                  onChange={(e) => handleLooseCountChange(e.target.value, denom)}
-                 // w-8 -> w-7로 변경
-                 className="w-7 h-8 text-center text-slate-800 text-base font-bold bg-white border border-gray-200 rounded shadow-sm focus:border-gray-400 focus:ring-1 focus:ring-gray-200 outline-none p-0"
+                 className="w-9 h-8 text-center text-slate-800 text-base font-bold bg-white border border-gray-200 rounded shadow-sm focus:border-gray-400 focus:ring-1 focus:ring-gray-200 outline-none p-0"
                />
                <span className="text-gray-500 text-[10px] font-bold ml-1 w-3 leading-tight">개</span>
                
+               {/* 너비 w-24로 확대 */}
                <input
                   type="text"
                   inputMode="numeric"
                   placeholder="0"
                   value={looseAmountInput}
                   onChange={(e) => handleLooseAmountInputChange(e.target.value, denom)}
-                  className="w-20 h-8 text-right text-sm font-black text-slate-700 bg-transparent outline-none placeholder-gray-400"
+                  className="w-24 h-8 text-right text-sm font-black text-slate-700 bg-transparent outline-none placeholder-gray-400"
                />
             </div>
 
