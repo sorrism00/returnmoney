@@ -1,7 +1,7 @@
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    // 전체 스크롤 통합 및 여백 확보 반영 v24
-    caches.open('currency-calculator-v24').then((cache) => {
+    // 레이아웃 너비 최적화(w-7) 및 한 줄 복귀 반영 v25
+    caches.open('currency-calculator-v25').then((cache) => {
       return cache.addAll([
         '/returnmoney/',
         '/returnmoney/index.html',
@@ -17,7 +17,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  const cacheWhitelist = ['currency-calculator-v24'];
+  const cacheWhitelist = ['currency-calculator-v25'];
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
