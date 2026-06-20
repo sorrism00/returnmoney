@@ -97,12 +97,15 @@
   function App() {
     const { useState, useMemo } = React;
 
-    const [quantities, setQuantities] = useState(() =>
-      denominations.reduce((acc, denom) => ({
-        ...acc,
-        [denom.value]: { count: '', bundle: '', looseAmountInput: '', bundleAmountInput: '' }
-      }), {})
-    );
+    const initialQuantities = () => denominations.reduce((acc, denom) => ({
+      ...acc,
+      [denom.value]: { count: '', bundle: '', looseAmountInput: '', bundleAmountInput: '' }
+    }), {});
+
+    // 회수금 계산용 상태
+    const [returnQuantities, setReturnQuantities] = useState(initialQuantities);
+    // 금고 실제 금액 계산용 상태
+    const [vaultQuantities, setVaultQuantities] = useState(initialQuantities);
 
     const [closingVaultAmount, setClosingVaultAmount] = useState('');
     const [coinReplenishmentAmount, setCoinReplenishmentAmount] = useState('');
@@ -110,66 +113,58 @@
     const [increaseAmount, setIncreaseAmount] = useState('');
     const [decreaseAmount, setDecreaseAmount] = useState('');
 
-    const handleBundleCountChange = (value, denom) => {
+    const updateQuantity = (type, denomValue, newValues) => {
+      if (type === 'return') {
+        setReturnQuantities(prev => ({ ...prev, [denomValue]: { ...prev[denomValue], ...newValues } }));
+      } else {
+        setVaultQuantities(prev => ({ ...prev, [denomValue]: { ...prev[denomValue], ...newValues } }));
+      }
+    };
+
+    const handleBundleCountChange = (type, value, denom) => {
       const cleanValue = value.replace(/[^0-9]/g, '');
       const count = parseInt(cleanValue) || 0;
       const bundleValue = count * BUNDLE_VALUES[denom.value];
 
-      setQuantities(prev => ({
-        ...prev,
-        [denom.value]: {
-          ...prev[denom.value],
-          bundle: cleanValue,
-          bundleAmountInput: bundleValue > 0 ? (bundleValue / 10000) : ''
-        }
-      }));
+      updateQuantity(type, denom.value, {
+        bundle: cleanValue,
+        bundleAmountInput: bundleValue > 0 ? (bundleValue / 10000) : ''
+      });
     };
 
-    const handleBundleAmountInputChange = (value, denom) => {
+    const handleBundleAmountInputChange = (type, value, denom) => {
       const cleanValue = value.replace(/[^0-9.]/g, '');
       const manWonInput = parseFloat(cleanValue) || 0;
       const actualAmount = manWonInput * 10000;
       const bundleUnit = BUNDLE_VALUES[denom.value];
       const calculatedCount = Math.floor(actualAmount / bundleUnit);
 
-      setQuantities(prev => ({
-        ...prev,
-        [denom.value]: {
-          ...prev[denom.value],
-          bundle: calculatedCount > 0 ? String(calculatedCount) : '',
-          bundleAmountInput: cleanValue
-        }
-      }));
+      updateQuantity(type, denom.value, {
+        bundle: calculatedCount > 0 ? String(calculatedCount) : '',
+        bundleAmountInput: cleanValue
+      });
     };
 
-    const handleLooseCountChange = (value, denom) => {
+    const handleLooseCountChange = (type, value, denom) => {
       const cleanValue = value.replace(/[^0-9]/g, '');
       const count = parseInt(cleanValue) || 0;
       const looseValue = count * denom.value;
 
-      setQuantities(prev => ({
-        ...prev,
-        [denom.value]: {
-          ...prev[denom.value],
-          count: cleanValue,
-          looseAmountInput: looseValue > 0 ? formatCurrency(looseValue) : ''
-        }
-      }));
+      updateQuantity(type, denom.value, {
+        count: cleanValue,
+        looseAmountInput: looseValue > 0 ? formatCurrency(looseValue) : ''
+      });
     };
 
-    const handleLooseAmountInputChange = (value, denom) => {
+    const handleLooseAmountInputChange = (type, value, denom) => {
       const cleanValue = value.replace(/[^0-9]/g, '');
       const inputAmount = parseInt(cleanValue) || 0;
       const calculatedCount = Math.floor(inputAmount / denom.value);
 
-      setQuantities(prev => ({
-        ...prev,
-        [denom.value]: {
-          ...prev[denom.value],
-          count: calculatedCount > 0 ? String(calculatedCount) : '',
-          looseAmountInput: cleanValue === '' ? '' : Number(cleanValue).toLocaleString()
-        }
-      }));
+      updateQuantity(type, denom.value, {
+        count: calculatedCount > 0 ? String(calculatedCount) : '',
+        looseAmountInput: cleanValue === '' ? '' : Number(cleanValue).toLocaleString()
+      });
     };
 
     const handleClosingVaultAmountChange = (e) => setClosingVaultAmount(e.target.value.replace(/[^0-9]/g, ''));
@@ -179,9 +174,8 @@
     const handleDecreaseChange = (e) => setDecreaseAmount(e.target.value.replace(/[^0-9]/g, ''));
 
     const handleReset = () => {
-      setQuantities(denominations.reduce((acc, denom) => ({ 
-        ...acc, [denom.value]: { count: '', bundle: '', looseAmountInput: '', bundleAmountInput: '' } 
-      }), {}));
+      setReturnQuantities(initialQuantities());
+      setVaultQuantities(initialQuantities());
       setClosingVaultAmount('');
       setCoinReplenishmentAmount('');
       setDepositAmount('');
@@ -189,28 +183,45 @@
       setDecreaseAmount('');
     };
 
-    const totals = useMemo(() => {
+    const calculateTotals = (quantitiesObj) => {
       let billTotal = 0;
       let coinTotal = 0;
       denominations.forEach(denom => {
-        const bundleCount = parseInt(quantities[denom.value].bundle) || 0;
-        const looseCount = parseInt(quantities[denom.value].count) || 0;
+        const bundleCount = parseInt(quantitiesObj[denom.value].bundle) || 0;
+        const looseCount = parseInt(quantitiesObj[denom.value].count) || 0;
         const amount = (bundleCount * BUNDLE_VALUES[denom.value]) + (looseCount * denom.value);
 
         if (denom.type === 'bill') billTotal += amount;
         else coinTotal += amount;
       });
-      const grandTotal = billTotal + coinTotal;
-      const postClosingVaultAmount = (parseInt(closingVaultAmount) || 0) + grandTotal - (parseInt(coinReplenishmentAmount) || 0) - (parseInt(depositAmount) || 0) + (parseInt(increaseAmount) || 0) - (parseInt(decreaseAmount) || 0);
-      return { billTotal, coinTotal, grandTotal, postClosingVaultAmount };
-    }, [quantities, closingVaultAmount, coinReplenishmentAmount, depositAmount, increaseAmount, decreaseAmount]);
+      return { billTotal, coinTotal, grandTotal: billTotal + coinTotal };
+    };
 
-    const renderItem = (denom) => {
-      const { count, bundle, bundleAmountInput, looseAmountInput } = quantities[denom.value];
+    // 회수금 총합 계산
+    const returnTotals = useMemo(() => calculateTotals(returnQuantities), [returnQuantities]);
+    // 실제 금고 총합 계산
+    const vaultTotals = useMemo(() => calculateTotals(vaultQuantities), [vaultQuantities]);
+
+    // 마감 후 금고 (이론적 금액)
+    const postClosingVaultAmount = useMemo(() => {
+      return (parseInt(closingVaultAmount) || 0) 
+        + returnTotals.grandTotal 
+        - (parseInt(coinReplenishmentAmount) || 0) 
+        - (parseInt(depositAmount) || 0) 
+        + (parseInt(increaseAmount) || 0) 
+        - (parseInt(decreaseAmount) || 0);
+    }, [closingVaultAmount, returnTotals.grandTotal, coinReplenishmentAmount, depositAmount, increaseAmount, decreaseAmount]);
+
+    // 최종 판정 계산 (금고 실제 금액 - 마감 후 금고)
+    const finalDiff = vaultTotals.grandTotal - postClosingVaultAmount;
+
+    // 공통 렌더링 아이템 함수
+    const renderItem = (type, denom, quantitiesObj) => {
+      const { count, bundle, bundleAmountInput, looseAmountInput } = quantitiesObj[denom.value];
       const bundleLabel = denom.type === 'bill' ? 'strap' : 'bag';
       
       return (
-        <div key={denom.value} className="flex items-center justify-between border-b border-gray-100 last:border-0 hover:bg-white/50 transition-colors px-1 py-0.5 min-h-[36px]">
+        <div key={`${type}-${denom.value}`} className="flex items-center justify-between border-b border-gray-100 last:border-0 hover:bg-white/50 transition-colors px-1 py-0.5 min-h-[36px]">
           <div className="w-12 flex-shrink-0 flex items-center h-full">
             <span className="text-slate-700 text-sm font-extrabold whitespace-nowrap">{denom.name}</span>
           </div>
@@ -218,18 +229,18 @@
           <div className="flex flex-1 justify-end items-center space-x-1">
             {/* 묶음 */}
             <div className="flex items-center bg-orange-100 rounded-lg px-1 py-1 border border-black shadow-sm">
-               <input type="text" inputMode="numeric" value={bundle} onChange={(e) => handleBundleCountChange(e.target.value, denom)} className="w-8 h-8 text-center text-black text-base font-bold bg-white border border-gray-200 rounded shadow-sm focus:border-orange-400 outline-none p-0" />
+               <input type="text" inputMode="numeric" value={bundle} onChange={(e) => handleBundleCountChange(type, e.target.value, denom)} className="w-8 h-8 text-center text-black text-base font-bold bg-white border border-gray-200 rounded shadow-sm focus:border-orange-400 outline-none p-0" />
                <span className="text-orange-800 text-[10px] font-bold ml-1 w-7 overflow-hidden leading-tight">{bundleLabel}</span>
                <div className="flex items-center justify-end w-16">
-                 <input type="text" inputMode="numeric" placeholder="0" value={bundleAmountInput} onChange={(e) => handleBundleAmountInputChange(e.target.value, denom)} className="w-full text-right text-sm font-black text-orange-900 bg-transparent outline-none placeholder-orange-400" />
+                 <input type="text" inputMode="numeric" placeholder="0" value={bundleAmountInput} onChange={(e) => handleBundleAmountInputChange(type, e.target.value, denom)} className="w-full text-right text-sm font-black text-orange-900 bg-transparent outline-none placeholder-orange-400" />
                  <span className="text-xs font-black text-orange-900 ml-0.5 whitespace-nowrap">만</span>
                </div>
             </div>
             {/* 낱개 */}
             <div className="flex items-center bg-yellow-100 rounded-lg px-1 py-1 border border-black shadow-sm">
-               <input type="text" inputMode="numeric" value={count} onChange={(e) => handleLooseCountChange(e.target.value, denom)} className="w-8 h-8 text-center text-black text-base font-bold bg-white border border-gray-200 rounded shadow-sm focus:border-yellow-400 outline-none p-0" />
+               <input type="text" inputMode="numeric" value={count} onChange={(e) => handleLooseCountChange(type, e.target.value, denom)} className="w-8 h-8 text-center text-black text-base font-bold bg-white border border-gray-200 rounded shadow-sm focus:border-yellow-400 outline-none p-0" />
                <span className="text-yellow-800 text-[10px] font-bold ml-1 w-3 leading-tight">개</span>
-               <input type="text" inputMode="numeric" placeholder="0" value={looseAmountInput} onChange={(e) => handleLooseAmountInputChange(e.target.value, denom)} className="w-20 h-8 text-right text-sm font-black text-yellow-950 bg-transparent outline-none placeholder-yellow-600" />
+               <input type="text" inputMode="numeric" placeholder="0" value={looseAmountInput} onChange={(e) => handleLooseAmountInputChange(type, e.target.value, denom)} className="w-20 h-8 text-right text-sm font-black text-yellow-950 bg-transparent outline-none placeholder-yellow-600" />
             </div>
           </div>
         </div>
@@ -253,15 +264,15 @@
 
           <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-1 shadow-xl shadow-gray-100 border border-white flex flex-col">
             <div className="flex flex-col">
-              {denominations.filter(d => d.type === 'bill').map(renderItem)}
+              {denominations.filter(d => d.type === 'bill').map(d => renderItem('return', d, returnQuantities))}
               <div className="flex-none flex justify-between items-center py-2 px-2 bg-violet-200/50 rounded-lg mt-1 mb-1 min-h-[36px]">
                 <span className="text-sm font-bold text-violet-700">지폐 계</span>
-                <span className="text-lg font-black text-slate-700">{formatCurrency(totals.billTotal)}</span>
+                <span className="text-lg font-black text-slate-700">{formatCurrency(returnTotals.billTotal)}</span>
               </div>
-              {denominations.filter(d => d.type === 'coin').map(renderItem)}
+              {denominations.filter(d => d.type === 'coin').map(d => renderItem('return', d, returnQuantities))}
               <div className="flex-none flex justify-between items-center py-2 px-2 bg-indigo-200/50 rounded-lg mt-1 min-h-[36px]">
                 <span className="text-sm font-bold text-indigo-700">동전 계</span>
-                <span className="text-lg font-black text-slate-700">{formatCurrency(totals.coinTotal)}</span>
+                <span className="text-lg font-black text-slate-700">{formatCurrency(returnTotals.coinTotal)}</span>
               </div>
             </div>
           </div>
@@ -269,7 +280,7 @@
           <div className="flex-none bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl py-2 px-3 shadow-lg text-white">
             <div className="flex justify-between items-center">
               <h2 className="text-sm font-bold opacity-90">총 합계</h2>
-              <span className="text-xl font-extrabold">{formatCurrency(totals.grandTotal)}</span>
+              <span className="text-xl font-extrabold">{formatCurrency(returnTotals.grandTotal)}</span>
             </div>
           </div>
 
@@ -292,14 +303,59 @@
             </div>
           </div>
 
-          <div className="flex-none bg-gradient-to-r from-gray-900 to-slate-800 rounded-2xl py-2 px-3 shadow-2xl text-white mt-auto mb-8">
+          <div className="flex-none bg-gradient-to-r from-gray-900 to-slate-800 rounded-2xl py-2 px-3 shadow-2xl text-white">
             <div className="flex justify-between items-center">
               <h2 className="text-sm font-bold text-gray-300">마감 후 금고</h2>
               <span className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-amber-400">
-                {formatCurrency(totals.postClosingVaultAmount)}
+                {formatCurrency(postClosingVaultAmount)}
               </span>
             </div>
           </div>
+
+          {/* 중간 구분선 */}
+          <div className="flex items-center justify-center py-2">
+            <div className="w-[90%] border-t-2 border-slate-300 border-dashed opacity-50"></div>
+          </div>
+
+          {/* ---- 금고 실제 금액 섹션 ---- */}
+          <div className="flex-none px-1">
+            <h2 className="text-sm font-black text-slate-600 mb-1">실제 금고 잔액 입력</h2>
+          </div>
+
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-1 shadow-xl shadow-gray-100 border border-white flex flex-col">
+            <div className="flex flex-col">
+              {denominations.filter(d => d.type === 'bill').map(d => renderItem('vault', d, vaultQuantities))}
+              <div className="flex-none flex justify-between items-center py-2 px-2 bg-violet-200/50 rounded-lg mt-1 mb-1 min-h-[36px]">
+                <span className="text-sm font-bold text-violet-700">지폐 계</span>
+                <span className="text-lg font-black text-slate-700">{formatCurrency(vaultTotals.billTotal)}</span>
+              </div>
+              {denominations.filter(d => d.type === 'coin').map(d => renderItem('vault', d, vaultQuantities))}
+              <div className="flex-none flex justify-between items-center py-2 px-2 bg-indigo-200/50 rounded-lg mt-1 min-h-[36px]">
+                <span className="text-sm font-bold text-indigo-700">동전 계</span>
+                <span className="text-lg font-black text-slate-700">{formatCurrency(vaultTotals.coinTotal)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex-none bg-gradient-to-r from-cyan-600 to-blue-600 rounded-2xl py-2 px-3 shadow-lg text-white">
+            <div className="flex justify-between items-center">
+              <h2 className="text-sm font-bold opacity-90">금고 실제 금액</h2>
+              <span className="text-xl font-extrabold">{formatCurrency(vaultTotals.grandTotal)}</span>
+            </div>
+          </div>
+
+          {/* 최종 판정 */}
+          <div className={`flex-none rounded-2xl py-5 px-3 shadow-2xl text-white mt-4 mb-8 transition-colors duration-500 ${finalDiff === 0 ? 'bg-gradient-to-r from-emerald-500 to-green-500' : (finalDiff > 0 ? 'bg-gradient-to-r from-blue-500 to-indigo-500' : 'bg-gradient-to-r from-rose-500 to-red-500')}`}>
+            <div className="flex flex-col items-center justify-center">
+              <h2 className="text-sm font-bold text-white/80 mb-1">최종 판정</h2>
+              <span className="text-2xl font-black drop-shadow-md">
+                {finalDiff === 0 && "Perfect!!"}
+                {finalDiff > 0 && `${formatCurrency(finalDiff)}원이 남습니다.`}
+                {finalDiff < 0 && `${formatCurrency(Math.abs(finalDiff))}원이 부족합니다.`}
+              </span>
+            </div>
+          </div>
+
         </div>
       </div>
     );
@@ -310,7 +366,6 @@
 </script>
 
 <script>
-  // http 또는 https 프로토콜에서만 서비스 워커를 등록하도록 조건 추가 (blob: 등 환경 에러 방지)
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/returnmoney/sw.js')
