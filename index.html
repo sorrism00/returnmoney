@@ -1,309 +1,409 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>거스름돈 및 수수료 계산기</title>
-    <link rel="manifest" href="/returnmoney/manifest.json">
-    <link rel="apple-touch-icon" href="/returnmoney/icon-192x192.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.12/babel.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>회수금계산기</title>
 
-    <style>
-        body {
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-            -webkit-user-select: none;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
-        input {
-            user-select: text;
-            -webkit-user-select: text;
-        }
-        .safe-bottom {
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-        .safe-top {
-            padding-top: env(safe-area-inset-top);
-        }
-    </style>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="계산기">
+  
+  <link rel="apple-touch-icon" sizes="180x180" href="/returnmoney/icon-180x180.png">
+  <meta name="theme-color" content="#fdf2f8">
+
+  <link rel="icon" type="image/png" href="/returnmoney/icon-192x192.png">
+  <link rel="manifest" href="/returnmoney/manifest.json">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.12/babel.min.js"></script>
+
+  <style>
+    html, body {
+      min-height: 100%;
+      background: linear-gradient(135deg, #fff1eb 0%, #ace0f9 100%);
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    
+    ::-webkit-scrollbar {
+      display: none;
+    }
+
+    input[type='text'].no-spinner::-webkit-outer-spin-button,
+    input[type='text'].no-spinner::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type='text'].no-spinner {
+      -moz-appearance: textfield;
+    }
+  </style>
 </head>
-<body class="bg-gray-900 text-white antialiased min-h-screen flex flex-col safe-top safe-bottom">
+<body class="select-none text-slate-800">
 
-    <div id="root" class="flex-1 flex flex-col h-full max-w-md mx-auto w-full bg-gray-950 shadow-2xl overflow-hidden relative"></div>
+<div id="root" class="min-h-screen"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+<script type="text/babel">
+  const BUNDLE_VALUES = {
+    50000: 5000000, 
+    10000: 1000000, 
+    5000: 500000,   
+    1000: 100000,   
+    500: 50000,     
+    100: 20000,     
+    50: 10000,      
+    10: 2000        
+  };
 
-        function App() {
-            const [view, setView] = useState('change'); // 'change' 또는 'fee'
-            const [input, setInput] = useState('');
-            const [activeField, setActiveField] = useState('received'); // 'received' 또는 'price' (거스름돈 뷰용)
-            const [receivedAmount, setReceivedAmount] = useState('');
-            const [priceAmount, setPriceAmount] = useState('');
-            const [feeInput, setFeeInput] = useState('');
+  const denominations = [
+    { name: '오만원', value: 50000, type: 'bill' },
+    { name: '만원', value: 10000, type: 'bill' },
+    { name: '오천원', value: 5000, type: 'bill' },
+    { name: '천원', value: 1000, type: 'bill' },
+    { name: '오백원', value: 500, type: 'coin' },
+    { name: '백원', value: 100, type: 'coin' },
+    { name: '오십원', value: 50, type: 'coin' },
+    { name: '십원', value: 10, type: 'coin' },
+  ];
 
-            // Lucide 아이콘 초기화
-            useEffect(() => {
-                if (window.lucide) {
-                    window.lucide.createIcons();
-                }
-            }, [view]);
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('ko-KR').format(amount);
+  };
 
-            // 화폐 단위 정의
-            const units = [
-                { label: '5만원', value: 50000 },
-                { label: '1만원', value: 10000 },
-                { label: '5천원', value: 5000 },
-                { label: '1천원', value: 1000 },
-                { label: '5백원', value: 500 },
-                { label: '1백원', value: 100 },
-                { label: '5십원', value: 50 },
-                { label: '1십원', value: 10 }
-            ];
+  function App() {
+    const { useState, useMemo } = React;
 
-            // 수수료율 정의
-            const feeRates = [
-                { label: '3.3%', value: 0.033 },
-                { label: '4.4%', value: 0.044 },
-                { label: '5.5%', value: 0.055 },
-                { label: '10%', value: 0.10 }
-            ];
-
-            // 키패드 입력 처리
-            const handleKeyPress = (key) => {
-                if (view === 'change') {
-                    let current = activeField === 'received' ? receivedAmount : priceAmount;
-                    
-                    if (key === 'C') {
-                        current = '';
-                    } else if (key === '00') {
-                        if (current !== '') current += '00';
-                    } else if (key === 'back') {
-                        current = current.slice(0, -1);
-                    } else {
-                        current += key;
-                    }
-
-                    if (activeField === 'received') setReceivedAmount(current);
-                    else setPriceAmount(current);
-                } else {
-                    if (key === 'C') setFeeInput('');
-                    else if (key === '00') { if (feeInput !== '') setFeeInput(feeInput + '00'); }
-                    else if (key === 'back') setFeeInput(feeInput.slice(0, -1));
-                    else setFeeInput(feeInput + key);
-                }
-            };
-
-            // 거스름돈 계산 로직
-            const calculateChange = () => {
-                const received = parseInt(receivedAmount) || 0;
-                const price = parseInt(priceAmount) || 0;
-                let change = received - price;
-
-                if (change <= 0) return { total: 0, details: [] };
-
-                const totalChange = change;
-                const details = [];
-
-                units.forEach(unit => {
-                    const count = Math.floor(change / unit.value);
-                    if (count > 0) {
-                        details.push({ label: unit.label, count });
-                        change %= unit.value;
-                    }
-                });
-
-                return { total: totalChange, details };
-            };
-
-            // 수수료 계산 로직
-            const calculateFee = () => {
-                const amount = parseInt(feeInput) || 0;
-                return feeRates.map(rate => {
-                    const fee = Math.floor(amount * rate.value);
-                    const safeFee = Math.floor(fee / 10) * 10; // 1원단위 절사
-                    return {
-                        label: rate.label,
-                        fee: safeFee,
-                        net: amount - safeFee
-                    };
-                });
-            };
-
-            const changeResult = calculateChange();
-            const feeResults = calculateFee();
-
-            return (
-                <div class="flex-1 flex flex-col h-full select-none">
-                    {/* 상단 탭 내비게이션 */}
-                    <div class="flex border-b border-gray-800 bg-gray-900 sticky top-0 z-10">
-                        <button 
-                            onClick={() => setView('change')}
-                            class={`flex-1 py-4 text-center font-bold text-lg flex items-center justify-center gap-2 transition-colors ${view === 'change' ? 'text-emerald-400 border-b-2 border-emerald-400 bg-gray-950' : 'text-gray-400 hover:text-gray-200'}`}
-                        >
-                            <i data-lucide="coins" class="w-5 h-5"></i>
-                            거스름돈 계산
-                        </button>
-                        <button 
-                            onClick={() => setView('fee')}
-                            class={`flex-1 py-4 text-center font-bold text-lg flex items-center justify-center gap-2 transition-colors ${view === 'fee' ? 'text-indigo-400 border-b-2 border-indigo-400 bg-gray-950' : 'text-gray-400 hover:text-gray-200'}`}
-                        >
-                            <i data-lucide="percent" class="w-5 h-5"></i>
-                            수수료 계산
-                        </button>
-                    </div>
-
-                    {/* 메인 콘텐츠 영역 (스크롤 가능) */}
-                    <div class="flex-1 overflow-y-auto p-4 space-y-4 pb-72">
-                        {view === 'change' ? (
-                            /* 거스름돈 계산 뷰 */
-                            <div class="space-y-4 animate-fade-in">
-                                {/* 입력 필드 그룹 */}
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div 
-                                        onClick={() => setActiveField('received')}
-                                        class={`p-3 rounded-2xl border-2 transition-all cursor-pointer ${activeField === 'received' ? 'bg-emerald-950/40 border-emerald-500 shadow-md shadow-emerald-900/20' : 'bg-gray-900 border-gray-800'}`}
-                                    >
-                                        <div class="text-xs text-gray-400 font-medium mb-1">받은 금액</div>
-                                        <div class="text-xl font-bold truncate text-emerald-400">
-                                            {receivedAmount ? parseInt(receivedAmount).toLocaleString() : '0'} <span class="text-sm text-gray-500">원</span>
-                                        </div>
-                                    </div>
-                                    <div 
-                                        onClick={() => setActiveField('price')}
-                                        class={`p-3 rounded-2xl border-2 transition-all cursor-pointer ${activeField === 'price' ? 'bg-emerald-950/40 border-emerald-500 shadow-md shadow-emerald-900/20' : 'bg-gray-900 border-gray-800'}`}
-                                    >
-                                        <div class="text-xs text-gray-400 font-medium mb-1">상품 금액</div>
-                                        <div class="text-xl font-bold truncate text-white">
-                                            {priceAmount ? parseInt(priceAmount).toLocaleString() : '0'} <span class="text-sm text-gray-500">원</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* 결과 출력 */}
-                                <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4 shadow-lg">
-                                    <div class="flex justify-between items-center border-b border-gray-800 pb-3 mb-3">
-                                        <span class="text-gray-400 font-medium">거스름돈 총액</span>
-                                        <span class="text-2xl font-black text-amber-400">
-                                            {changeResult.total.toLocaleString()} 원
-                                        </span>
-                                    </div>
-                                    
-                                    {changeResult.details.length > 0 ? (
-                                        <div class="grid grid-cols-2 gap-2">
-                                            {changeResult.details.map((item, idx) => (
-                                                <div key={idx} class="flex justify-between items-center bg-gray-950 p-2.5 rounded-xl border border-gray-800/60">
-                                                    <span class="text-sm text-gray-300 font-medium">{item.label}</span>
-                                                    <span class="text-base font-bold text-emerald-400">{item.count} <span class="text-xs text-gray-500 font-normal">개</span></span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div class="text-center py-6 text-gray-500 text-sm">
-                                            금액을 입력하면 거스름돈 기표가 표시됩니다.
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        ) : (
-                            /* 수수료 계산 뷰 */
-                            <div class="space-y-4 animate-fade-in">
-                                {/* 원금 입력 필드 */}
-                                <div class="bg-indigo-950/30 border-2 border-indigo-500 p-4 rounded-2xl shadow-lg shadow-indigo-900/10">
-                                    <div class="text-xs text-indigo-300 font-semibold uppercase tracking-wider mb-1">정산 대상 금액</div>
-                                    <div class="text-2xl font-black text-indigo-400 truncate">
-                                        {feeInput ? parseInt(feeInput).toLocaleString() : '0'} <span class="text-base text-gray-500 font-normal">원</span>
-                                    </div>
-                                </div>
-
-                                {/* 수수료율별 결과 리스트 */}
-                                <div class="space-y-2.5">
-                                    {feeResults.map((res, idx) => (
-                                        <div key={idx} class="bg-gray-900 border border-gray-800 rounded-2xl p-3.5 flex flex-col justify-between shadow-md">
-                                            <div class="flex justify-between items-center mb-1.5">
-                                                <span class="bg-indigo-900/60 text-indigo-300 border border-indigo-700/50 text-xs px-2.5 py-0.5 rounded-full font-bold">{res.label}</span>
-                                                <span class="text-xs text-red-400 font-medium">수수료: -{res.fee.toLocaleString()}원</span>
-                                            </div>
-                                            <div class="flex justify-between items-end">
-                                                <span class="text-xs text-gray-400">실수령액</span>
-                                                <span class="text-lg font-bold text-gray-100">{res.net.toLocaleString()} 원</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* 고정 하단 키패드 */}
-                    <div class="absolute bottom-0 left-0 right-0 bg-gray-900/95 backdrop-blur-md border-t border-gray-800 p-2 grid grid-cols-4 gap-1.5 z-20 pb-safe">
-                        {['7', '8', '9', 'back', '4', '5', '6', 'C', '1', '2', '3', '00', '0'].map((key) => {
-                            if (key === 'back') {
-                                return (
-                                    <button 
-                                        key={key} onClick={() => handleKeyPress(key)}
-                                        class="bg-gray-800 hover:bg-gray-700 active:bg-gray-600 font-bold py-3.5 rounded-xl flex items-center justify-center text-gray-300 transition-colors"
-                                    >
-                                        <i data-lucide="delete" class="w-5 h-5"></i>
-                                    </button>
-                                );
-                            }
-                            if (key === 'C') {
-                                return (
-                                    <button 
-                                        key={key} onClick={() => handleKeyPress(key)}
-                                        class="bg-red-950/40 hover:bg-red-900/40 text-red-400 border border-red-900/50 font-black py-3.5 rounded-xl text-lg transition-colors"
-                                    >
-                                        C
-                                    </button>
-                                );
-                            }
-                            if (key === '0') {
-                                return (
-                                    <button 
-                                        key={key} onClick={() => handleKeyPress(key)}
-                                        class="col-span-2 bg-gray-800 hover:bg-gray-700 active:bg-gray-600 font-bold py-3.5 rounded-xl text-lg transition-colors"
-                                    >
-                                        0
-                                    </button>
-                                );
-                            }
-                            return (
-                                <button 
-                                    key={key} onClick={() => handleKeyPress(key)}
-                                    class="bg-gray-800 hover:bg-gray-700 active:bg-gray-600 font-bold py-3.5 rounded-xl text-lg transition-colors"
-                                >
-                                    {key}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
-            );
+    const [quantities, setQuantities] = useState(() =>
+      denominations.reduce((acc, denom) => ({
+        ...acc,
+        [denom.value]: { 
+          count: '', 
+          bundle: '', 
+          looseAmountInput: '',
+          bundleAmountInput: ''
         }
+      }), {})
+    );
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+    const [closingVaultAmount, setClosingVaultAmount] = useState('');
+    const [coinReplenishmentAmount, setCoinReplenishmentAmount] = useState('');
+    const [increaseAmount, setIncreaseAmount] = useState('');
+    const [decreaseAmount, setDecreaseAmount] = useState('');
 
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/returnmoney/sw.js')
-                    .then(reg => console.log('Service Worker 등록 성공:', reg.scope))
-                    .catch(err => console.log('Service Worker 등록 실패:', err));
-            });
+    const handleBundleCountChange = (value, denom) => {
+      const cleanValue = value.replace(/[^0-9]/g, '');
+      const count = parseInt(cleanValue) || 0;
+      const bundleValue = count * BUNDLE_VALUES[denom.value];
+
+      setQuantities(prev => ({
+        ...prev,
+        [denom.value]: {
+          ...prev[denom.value],
+          bundle: cleanValue,
+          bundleAmountInput: bundleValue > 0 ? (bundleValue / 10000) : ''
         }
-    </script>
+      }));
+    };
+
+    const handleBundleAmountInputChange = (value, denom) => {
+      const cleanValue = value.replace(/[^0-9.]/g, '');
+      const manWonInput = parseFloat(cleanValue) || 0;
+      const actualAmount = manWonInput * 10000;
+      const bundleUnit = BUNDLE_VALUES[denom.value];
+      
+      const calculatedCount = Math.floor(actualAmount / bundleUnit);
+
+      setQuantities(prev => ({
+        ...prev,
+        [denom.value]: {
+          ...prev[denom.value],
+          bundle: calculatedCount > 0 ? String(calculatedCount) : '',
+          bundleAmountInput: cleanValue
+        }
+      }));
+    };
+
+    const handleLooseCountChange = (value, denom) => {
+      const cleanValue = value.replace(/[^0-9]/g, '');
+      const count = parseInt(cleanValue) || 0;
+      const looseValue = count * denom.value;
+
+      setQuantities(prev => ({
+        ...prev,
+        [denom.value]: {
+          ...prev[denom.value],
+          count: cleanValue,
+          looseAmountInput: looseValue > 0 ? formatCurrency(looseValue) : ''
+        }
+      }));
+    };
+
+    const handleLooseAmountInputChange = (value, denom) => {
+      const cleanValue = value.replace(/[^0-9]/g, '');
+      const inputAmount = parseInt(cleanValue) || 0;
+      
+      const calculatedCount = Math.floor(inputAmount / denom.value);
+
+      setQuantities(prev => ({
+        ...prev,
+        [denom.value]: {
+          ...prev[denom.value],
+          count: calculatedCount > 0 ? String(calculatedCount) : '',
+          looseAmountInput: cleanValue === '' ? '' : Number(cleanValue).toLocaleString()
+        }
+      }));
+    };
+
+    const handleClosingVaultAmountChange = (e) => setClosingVaultAmount(e.target.value.replace(/[^0-9]/g, ''));
+    const handleCoinReplenishmentChange = (e) => setCoinReplenishmentAmount(e.target.value.replace(/[^0-9]/g, ''));
+    const handleIncreaseChange = (e) => setIncreaseAmount(e.target.value.replace(/[^0-9]/g, ''));
+    const handleDecreaseChange = (e) => setDecreaseAmount(e.target.value.replace(/[^0-9]/g, ''));
+
+    const handleReset = () => {
+      setQuantities(denominations.reduce((acc, denom) => ({ 
+        ...acc, 
+        [denom.value]: { count: '', bundle: '', looseAmountInput: '', bundleAmountInput: '' } 
+      }), {}));
+      setClosingVaultAmount('');
+      setCoinReplenishmentAmount('');
+      setIncreaseAmount('');
+      setDecreaseAmount('');
+    };
+
+    const totals = useMemo(() => {
+      let billTotal = 0;
+      let coinTotal = 0;
+      denominations.forEach(denom => {
+        const bundleCount = parseInt(quantities[denom.value].bundle) || 0;
+        const looseCount = parseInt(quantities[denom.value].count) || 0;
+        
+        const bundleVal = bundleCount * BUNDLE_VALUES[denom.value];
+        const looseVal = looseCount * denom.value;
+        const amount = bundleVal + looseVal;
+
+        if (denom.type === 'bill') billTotal += amount;
+        else coinTotal += amount;
+      });
+      const grandTotal = billTotal + coinTotal;
+      const postClosingVaultAmount = (parseInt(closingVaultAmount) || 0) + grandTotal - (parseInt(coinReplenishmentAmount) || 0) + (parseInt(increaseAmount) || 0) - (parseInt(decreaseAmount) || 0);
+      return { billTotal, coinTotal, grandTotal, postClosingVaultAmount };
+    }, [quantities, closingVaultAmount, coinReplenishmentAmount, increaseAmount, decreaseAmount]);
+
+    const renderItem = (denom) => {
+      const { count, bundle, bundleAmountInput, looseAmountInput } = quantities[denom.value];
+      const bundleLabel = denom.type === 'bill' ? 'strap' : 'bag';
+      
+      return (
+        <div key={denom.value} className="flex items-center justify-between border-b border-gray-100 last:border-0 hover:bg-white/50 transition-colors px-1 py-0.5 min-h-[36px]">
+          
+          <div className="w-12 flex-shrink-0 flex items-center h-full">
+            <span className="text-slate-700 text-sm font-extrabold whitespace-nowrap">{denom.name}</span>
+          </div>
+
+          <div className="flex flex-1 justify-end items-center space-x-1">
+            
+            {/* 묶음 그룹 */}
+            <div className="flex items-center bg-orange-100 rounded-lg px-1 py-1 border border-black shadow-sm">
+               <input
+                 type="text"
+                 inputMode="numeric"
+                 value={bundle}
+                 onChange={(e) => handleBundleCountChange(e.target.value, denom)}
+                 className="w-8 h-8 text-center text-black text-base font-bold bg-white border border-gray-200 rounded shadow-sm focus:border-orange-400 focus:ring-1 focus:ring-orange-200 outline-none p-0"
+               />
+               <span className="text-orange-800 text-[10px] font-bold ml-1 w-7 overflow-hidden leading-tight">{bundleLabel}</span>
+               
+               <div className="flex items-center justify-end w-16">
+                 <input
+                    type="text"
+                    inputMode="numeric"
+                    placeholder="0"
+                    value={bundleAmountInput}
+                    onChange={(e) => handleBundleAmountInputChange(e.target.value, denom)}
+                    className="w-full text-right text-sm font-black text-orange-900 bg-transparent outline-none placeholder-orange-400"
+                 />
+                 <span className="text-xs font-black text-orange-900 ml-0.5 whitespace-nowrap">만</span>
+               </div>
+            </div>
+
+            {/* 낱개 그룹 */}
+            <div className="flex items-center bg-yellow-100 rounded-lg px-1 py-1 border border-black shadow-sm">
+               <input
+                 type="text"
+                 inputMode="numeric"
+                 value={count}
+                 onChange={(e) => handleLooseCountChange(e.target.value, denom)}
+                 className="w-8 h-8 text-center text-black text-base font-bold bg-white border border-gray-200 rounded shadow-sm focus:border-yellow-400 focus:ring-1 focus:ring-yellow-200 outline-none p-0"
+               />
+               <span className="text-yellow-800 text-[10px] font-bold ml-1 w-3 leading-tight">개</span>
+               
+               <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="0"
+                  value={looseAmountInput}
+                  onChange={(e) => handleLooseAmountInputChange(e.target.value, denom)}
+                  className="w-20 h-8 text-right text-sm font-black text-yellow-950 bg-transparent outline-none placeholder-yellow-600"
+               />
+            </div>
+
+          </div>
+        </div>
+      );
+    };
+
+    const safeAreaStyle = {
+      paddingTop: 'env(safe-area-inset-top)',
+      paddingBottom: 'env(safe-area-inset-bottom)'
+    };
+
+    return (
+      <div 
+        className="w-full min-h-screen flex flex-col mx-auto max-w-md bg-gradient-to-br from-[#fdfbfb] to-[#ebedee] sm:shadow-2xl sm:rounded-[2rem] sm:my-4 sm:min-h-0 sm:h-auto overflow-visible"
+        style={{...safeAreaStyle, background: 'linear-gradient(180deg, #fdfbfb 0%, #f4f7f6 100%)'}}
+      >
+        <div className="flex-1 flex flex-col p-2 space-y-1 h-full">
+          
+          {/* 헤더 */}
+          <div className="flex-none flex justify-between items-center px-1">
+            <h1 className="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600">
+              회수금 계산기
+            </h1>
+            <button
+              onClick={handleReset}
+              className="px-4 py-1.5 bg-white text-slate-600 font-bold text-sm rounded-full shadow hover:bg-gray-50 active:scale-95 transition-all border border-gray-100"
+            >
+              초기화
+            </button>
+          </div>
+
+          {/* 마감 전 금고 */}
+          <div className="flex-none bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl py-2 px-3 shadow-lg shadow-violet-200 text-white transform transition-transform">
+            <div className="flex justify-between items-center">
+              <h2 className="text-sm font-bold opacity-90">마감 전 금고</h2>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="0"
+                value={closingVaultAmount === '' ? '' : formatCurrency(parseInt(closingVaultAmount) || 0)}
+                onChange={handleClosingVaultAmountChange}
+                className="w-32 text-right text-white text-xl font-extrabold bg-transparent placeholder-white/30 outline-none p-0"
+              />
+            </div>
+          </div>
+
+          {/* 화폐 리스트 영역 */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-1 shadow-xl shadow-gray-100 border border-white flex flex-col">
+            <div className="flex flex-col">
+              {/* 지폐 */}
+              {denominations.filter(d => d.type === 'bill').map(renderItem)}
+
+              {/* 지폐 계 */}
+              <div className="flex-none flex justify-between items-center py-2 px-2 bg-violet-200/50 rounded-lg mt-1 mb-1 min-h-[36px]">
+                <span className="text-sm font-bold text-violet-700">지폐 계</span>
+                <span className="text-lg font-black text-slate-700">
+                  {formatCurrency(totals.billTotal)}
+                </span>
+              </div>
+
+              {/* 동전 */}
+              {denominations.filter(d => d.type === 'coin').map(renderItem)}
+
+              {/* 동전 계 */}
+              <div className="flex-none flex justify-between items-center py-2 px-2 bg-indigo-200/50 rounded-lg mt-1 min-h-[36px]">
+                <span className="text-sm font-bold text-indigo-700">동전 계</span>
+                <span className="text-lg font-black text-slate-700">
+                  {formatCurrency(totals.coinTotal)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* 총 합계 */}
+          <div className="flex-none bg-gradient-to-r from-emerald-500 to-teal-500 rounded-2xl py-2 px-3 shadow-lg shadow-teal-100 text-white transform transition-transform">
+            <div className="flex justify-between items-center">
+              <h2 className="text-sm font-bold opacity-90">총 합계</h2>
+              <span className="text-xl font-extrabold text-white">
+                {formatCurrency(totals.grandTotal)}
+              </span>
+            </div>
+          </div>
+
+          {/* 추가 입력 */}
+          <div className="flex-none grid grid-cols-3 gap-2">
+            <div className="bg-white rounded-xl p-1.5 shadow-sm border border-red-50 flex flex-col items-center">
+              <h2 className="text-[11px] font-bold text-red-400 mb-0.5 uppercase tracking-wide">(-) 동전보충</h2>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="0"
+                value={coinReplenishmentAmount === '' ? '' : formatCurrency(parseInt(coinReplenishmentAmount) || 0)}
+                onChange={handleCoinReplenishmentChange}
+                className="w-full text-center text-slate-700 text-base font-bold bg-red-50/50 rounded-lg py-0.5 outline-none"
+              />
+            </div>
+
+            <div className="bg-white rounded-xl p-1.5 shadow-sm border border-blue-50 flex flex-col items-center">
+              <h2 className="text-[11px] font-bold text-blue-400 mb-0.5 uppercase tracking-wide">(+) 증액</h2>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="0"
+                value={increaseAmount === '' ? '' : formatCurrency(parseInt(increaseAmount) || 0)}
+                onChange={handleIncreaseChange}
+                className="w-full text-center text-slate-700 text-base font-bold bg-blue-50/50 rounded-lg py-0.5 outline-none"
+              />
+            </div>
+
+            <div className="bg-white rounded-xl p-1.5 shadow-sm border border-red-50 flex flex-col items-center">
+              <h2 className="text-[11px] font-bold text-red-400 mb-0.5 uppercase tracking-wide">(-) 감액</h2>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="0"
+                value={decreaseAmount === '' ? '' : formatCurrency(parseInt(decreaseAmount) || 0)}
+                onChange={handleDecreaseChange}
+                className="w-full text-center text-slate-700 text-base font-bold bg-red-50/50 rounded-lg py-0.5 outline-none"
+              />
+            </div>
+          </div>
+
+          {/* 마감 후 금고 */}
+          <div className="flex-none bg-gradient-to-r from-gray-900 to-slate-800 rounded-2xl py-2 px-3 shadow-2xl text-white mt-auto mb-8">
+            <div className="flex justify-between items-center">
+              <h2 className="text-sm font-bold text-gray-300">마감 후 금고</h2>
+              <span className="text-xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-amber-400">
+                {formatCurrency(totals.postClosingVaultAmount)}
+              </span>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    );
+  }
+
+  const container = document.getElementById('root');
+  const root = ReactDOM.createRoot(container);
+  root.render(<App />);
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/returnmoney/sw.js').then(registration => {
+        console.log('SW registered');
+      }).catch(err => {
+        console.log('SW failed', err);
+      });
+    });
+  }
+</script>
+
 </body>
 </html>
