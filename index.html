@@ -106,6 +106,7 @@
 
     const [closingVaultAmount, setClosingVaultAmount] = useState('');
     const [coinReplenishmentAmount, setCoinReplenishmentAmount] = useState('');
+    const [depositAmount, setDepositAmount] = useState('');
     const [increaseAmount, setIncreaseAmount] = useState('');
     const [decreaseAmount, setDecreaseAmount] = useState('');
 
@@ -173,6 +174,7 @@
 
     const handleClosingVaultAmountChange = (e) => setClosingVaultAmount(e.target.value.replace(/[^0-9]/g, ''));
     const handleCoinReplenishmentChange = (e) => setCoinReplenishmentAmount(e.target.value.replace(/[^0-9]/g, ''));
+    const handleDepositChange = (e) => setDepositAmount(e.target.value.replace(/[^0-9]/g, ''));
     const handleIncreaseChange = (e) => setIncreaseAmount(e.target.value.replace(/[^0-9]/g, ''));
     const handleDecreaseChange = (e) => setDecreaseAmount(e.target.value.replace(/[^0-9]/g, ''));
 
@@ -182,6 +184,7 @@
       }), {}));
       setClosingVaultAmount('');
       setCoinReplenishmentAmount('');
+      setDepositAmount('');
       setIncreaseAmount('');
       setDecreaseAmount('');
     };
@@ -198,9 +201,9 @@
         else coinTotal += amount;
       });
       const grandTotal = billTotal + coinTotal;
-      const postClosingVaultAmount = (parseInt(closingVaultAmount) || 0) + grandTotal - (parseInt(coinReplenishmentAmount) || 0) + (parseInt(increaseAmount) || 0) - (parseInt(decreaseAmount) || 0);
+      const postClosingVaultAmount = (parseInt(closingVaultAmount) || 0) + grandTotal - (parseInt(coinReplenishmentAmount) || 0) - (parseInt(depositAmount) || 0) + (parseInt(increaseAmount) || 0) - (parseInt(decreaseAmount) || 0);
       return { billTotal, coinTotal, grandTotal, postClosingVaultAmount };
-    }, [quantities, closingVaultAmount, coinReplenishmentAmount, increaseAmount, decreaseAmount]);
+    }, [quantities, closingVaultAmount, coinReplenishmentAmount, depositAmount, increaseAmount, decreaseAmount]);
 
     const renderItem = (denom) => {
       const { count, bundle, bundleAmountInput, looseAmountInput } = quantities[denom.value];
@@ -270,18 +273,22 @@
             </div>
           </div>
 
-          <div className="flex-none grid grid-cols-3 gap-2">
-            <div className="bg-white rounded-xl p-1.5 shadow-sm border border-red-50 flex flex-col items-center">
-              <h2 className="text-[11px] font-bold text-red-400 mb-0.5 uppercase tracking-wide">(-) 동전보충</h2>
-              <input type="text" inputMode="numeric" placeholder="0" value={coinReplenishmentAmount === '' ? '' : formatCurrency(parseInt(coinReplenishmentAmount) || 0)} onChange={handleCoinReplenishmentChange} className="w-full text-center text-slate-700 text-base font-bold bg-red-50/50 rounded-lg py-0.5 outline-none" />
+          <div className="flex-none grid grid-cols-4 gap-1">
+            <div className="bg-white rounded-xl p-1 shadow-sm border border-red-50 flex flex-col items-center">
+              <h2 className="text-[10px] font-bold text-red-400 mb-0.5 tracking-tighter whitespace-nowrap">(-) 동전보충</h2>
+              <input type="text" inputMode="numeric" placeholder="0" value={coinReplenishmentAmount === '' ? '' : formatCurrency(parseInt(coinReplenishmentAmount) || 0)} onChange={handleCoinReplenishmentChange} className="w-full text-center text-slate-700 text-sm font-bold bg-red-50/50 rounded-lg py-0.5 outline-none" />
             </div>
-            <div className="bg-white rounded-xl p-1.5 shadow-sm border border-blue-50 flex flex-col items-center">
-              <h2 className="text-[11px] font-bold text-blue-400 mb-0.5 uppercase tracking-wide">(+) 증액</h2>
-              <input type="text" inputMode="numeric" placeholder="0" value={increaseAmount === '' ? '' : formatCurrency(parseInt(increaseAmount) || 0)} onChange={handleIncreaseChange} className="w-full text-center text-slate-700 text-base font-bold bg-blue-50/50 rounded-lg py-0.5 outline-none" />
+            <div className="bg-white rounded-xl p-1 shadow-sm border border-red-50 flex flex-col items-center">
+              <h2 className="text-[10px] font-bold text-red-400 mb-0.5 tracking-tighter whitespace-nowrap">(-) 예입금</h2>
+              <input type="text" inputMode="numeric" placeholder="0" value={depositAmount === '' ? '' : formatCurrency(parseInt(depositAmount) || 0)} onChange={handleDepositChange} className="w-full text-center text-slate-700 text-sm font-bold bg-red-50/50 rounded-lg py-0.5 outline-none" />
             </div>
-            <div className="bg-white rounded-xl p-1.5 shadow-sm border border-red-50 flex flex-col items-center">
-              <h2 className="text-[11px] font-bold text-red-400 mb-0.5 uppercase tracking-wide">(-) 감액</h2>
-              <input type="text" inputMode="numeric" placeholder="0" value={decreaseAmount === '' ? '' : formatCurrency(parseInt(decreaseAmount) || 0)} onChange={handleDecreaseChange} className="w-full text-center text-slate-700 text-base font-bold bg-red-50/50 rounded-lg py-0.5 outline-none" />
+            <div className="bg-white rounded-xl p-1 shadow-sm border border-blue-50 flex flex-col items-center">
+              <h2 className="text-[10px] font-bold text-blue-400 mb-0.5 tracking-tighter whitespace-nowrap">(+) 증액</h2>
+              <input type="text" inputMode="numeric" placeholder="0" value={increaseAmount === '' ? '' : formatCurrency(parseInt(increaseAmount) || 0)} onChange={handleIncreaseChange} className="w-full text-center text-slate-700 text-sm font-bold bg-blue-50/50 rounded-lg py-0.5 outline-none" />
+            </div>
+            <div className="bg-white rounded-xl p-1 shadow-sm border border-red-50 flex flex-col items-center">
+              <h2 className="text-[10px] font-bold text-red-400 mb-0.5 tracking-tighter whitespace-nowrap">(-) 감액</h2>
+              <input type="text" inputMode="numeric" placeholder="0" value={decreaseAmount === '' ? '' : formatCurrency(parseInt(decreaseAmount) || 0)} onChange={handleDecreaseChange} className="w-full text-center text-slate-700 text-sm font-bold bg-red-50/50 rounded-lg py-0.5 outline-none" />
             </div>
           </div>
 
