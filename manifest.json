@@ -4,8 +4,8 @@
   "description": "간단한 회수금 계산기",
   "start_url": "/returnmoney/",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
+  "background_color": "#fdfbfb",
+  "theme_color": "#fdfbfb",
   "icons": [
     {
       "src": "/returnmoney/icon-192x192.png",
