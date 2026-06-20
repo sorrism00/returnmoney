@@ -1,6 +1,7 @@
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open('currency-calculator-v37').then((cache) => {
+    // 캐시 명칭 버전을 v38로 상승시켜 단말기 캐시 완전 무효화
+    caches.open('currency-calculator-v38').then((cache) => {
       return cache.addAll([
         '/returnmoney/',
         '/returnmoney/index.html',
@@ -16,7 +17,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  const cacheWhitelist = ['currency-calculator-v37'];
+  const cacheWhitelist = ['currency-calculator-v38'];
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
